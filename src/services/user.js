@@ -13,7 +13,12 @@ async function findUsers () {
 
 async function userIdExist (userId) {
   let user;
-  user = await User.findById(userId);
+  try {
+    user = await User.findById(userId);
+  } catch (e) {
+    if (e.name == 'CastError') throw error.USER.USERID_NOT_VALID;
+    throw e;
+  }
   return !!user;
 }
 
