@@ -3,7 +3,8 @@ const dotenv = require('dotenv');
 const envFound = dotenv.config();
 
 if (envFound.error) {
-  throw envFound.error;
+  console.log(".env file is missing, using only ENV variables");
+  if (!process.env.JWT_SECRET) process.env.JWT_SECRET = 'secret';
 }
 
 module.exports = {
