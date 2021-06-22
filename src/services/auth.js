@@ -34,7 +34,7 @@ async function signUp (email, password, name) {
   }
 
   delete user.password;
-  return {user};
+  return user;
 }
 
 async function login (emailOrName, password) {
