@@ -40,10 +40,17 @@ async function login (req, res, next) {
   return res.json({user, token}).status(200);
 }
 
-async function getUserWithId (req, res) {
-
+async function getUserWithId (req, res, next) {
+  const userId = req.params.userId;
+  let user;
+  try {
+    user = await userService.findUserById(userId);
+  } catch (e) {
+    return next(e);
+  }
+  return res.json({user}).status(200);
 }
 
 async function updateUser (req, res) {
-
+ 
 }

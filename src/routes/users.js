@@ -9,7 +9,7 @@ module.exports = function () {
   router.put('/', userController.updateUser);
   router.post('/', userController.signUp);
 
-  router.get('/:userId', isAuth, userController.getUserWithId);
+  router.get('/:userId', attachUser, isAuth, userController.getUserWithId);
 
   router.post('/login', userController.login);
 
