@@ -6,7 +6,7 @@ module.exports = function () {
   const router = new Router();
 
   router.get('/', userController.listUsers);
-  router.put('/', userController.updateUser);
+  router.put('/', attachUser, isAuth, userController.updateUser);
   router.post('/', userController.signUp);
 
   router.get('/:userId', attachUser, isAuth, userController.getUserWithId);

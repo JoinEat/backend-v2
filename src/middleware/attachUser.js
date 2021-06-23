@@ -17,6 +17,6 @@ module.exports = async function (req, res, next) {
   } catch {
     return next(error.AUTH.AUTH_FAIL); // token invalid
   }
-  req.user = userData;
+  req.user = userData.data;
   return next();
 } 

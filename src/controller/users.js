@@ -34,7 +34,7 @@ async function login (req, res, next) {
   try {
     ({user, token} = await authService.login(email, password));
   } catch (e) {
-    next(e);
+    return next(e);
   }
   
   return res.json({user, token}).status(200);
@@ -51,6 +51,15 @@ async function getUserWithId (req, res, next) {
   return res.json({user}).status(200);
 }
 
-async function updateUser (req, res) {
- 
+async function updateUser (req, res, next) {
+  const userId = req.user._id;
+  
+  let user;
+  try {
+    user = await userService.updateUserById(userId, req.body);
+  } catch (e) {
+    return next(e);
+  }
+
+  return res.json({user}).status(200);
 }
