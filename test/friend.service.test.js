@@ -100,4 +100,22 @@ describe('Friend service', function() {
           .and.eventually.be.deep.equal(NOT_REQUESTED_BY_TARGET);
     });
   });
+
+  describe('deleteFriend', function() {
+    it('When both Id are valid and are friends, delete remove friend', async function() {
+      // Arrange
+      const userList = await userHelper.createUsers(2);
+      const user1Id = userList[0]._id;
+      const user2Id = userList[1]._id;
+      await friendService.requestFriend(user1Id, user2Id);
+      await friendService.acceptFriendRequest(user2Id, user1Id);
+
+      // Act
+      await friendService.deleteFriend(user1Id, user2Id);
+
+      // Assert
+      const friendState = await friendService.findFriendById(user1Id, user2Id);
+      expect(friendState).to.be.undefined;
+    });
+  });
 });

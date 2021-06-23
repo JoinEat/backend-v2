@@ -2,12 +2,14 @@ const User = require('../models/users');
 const error = require('../errors');
 const userService = require('./user');
 const { now } = require('mongoose');
+const { findOneAndUpdate } = require('../models/users');
 
 module.exports = {
   findFriends,
   findFriendById,
   requestFriend,
   acceptFriendRequest,
+  deleteFriend,
 }
 
 async function findFriends (userId) {
@@ -89,4 +91,20 @@ async function acceptFriendRequest (userId, targetId) {
         'friends.$.updateAt': currentTime,
       }},
   ).exec();  
+}
+
+async function deleteFriend (userId, targetId) {
+  const friendState = await findFriendById(userId, targetId);
+  if (!friendState) throw error.FRIEND.NOT_FRIEND;
+  if (friendState.state != 'success') throw error.FRIEND.NOT_FRIEND;
+
+  await User.findOneAndUpdate(
+      {_id: userId},
+      {$pull: { friends: {friendId: targetId}}},
+  ).exec();
+
+  await User.findOneAndUpdate(
+      {_id: targetId},
+      {$pull: { friends: {friendId: userId}}},
+  ).exec();
 }

@@ -6,5 +6,9 @@ module.exports = {
   NOT_REQUESTED_BY_TARGET: {
     statusCode: 400,
     message: 'NOT_REQUESTED_BY_TARGET',
-  }
+  },
+  NOT_FRIEND: {
+    statusCode: 400,
+    message: 'NOT_FRIEND',
+  },
 }
