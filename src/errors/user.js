@@ -7,4 +7,8 @@ module.exports = {
     statusCode: 404,
     message: 'USER_NOT_FOUND',
   },
+  FIELD_NOT_MUTABLE: {
+    statusCode: 400,
+    message: 'FIELD_NOT_MUTABLE'
+  },
 }

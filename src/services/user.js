@@ -1,10 +1,13 @@
 const User = require('../models/users');
 const error = require('../errors');
 
+const IMMUTABLE_FIELDS = ['name', 'email', 'password', 'friends'];
+
 module.exports = {
   findUsers,
   userIdExist,
   findUserById,
+  updateUserById,
 }
 
 async function findUsers () {
@@ -32,4 +35,22 @@ async function findUserById (userId) {
   }
   if (!user) throw error.USER.USER_NOT_FOUND;
   return user;
+}
+
+async function updateUserById (userId, data) {
+  for (key in data) {
+    if (IMMUTABLE_FIELDS.includes(key)) {
+      throw error.USER.FIELD_NOT_MUTABLE;
+    }
+  }
+
+  if (!await userIdExist(userId)) throw error.USER.USER_NOT_FOUND;
+
+  newUser = await User.findOneAndUpdate(
+      {_id: userId},
+      {$set: data},
+      {new: true},
+  ).select('-password -friends');
+  
+  return newUser;
 }
