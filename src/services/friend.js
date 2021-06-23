@@ -33,9 +33,13 @@ async function findFriendById (userId, targetId) {
 }
 
 async function requestFriend (userId, targetId) {
-  await userService.checkUserIdValidAndExist(userId);
-  await userService.checkUserIdValidAndExist(targetId);
+  const friendState = await findFriendById(userId, targetId);
   if (userId == targetId) throw error.FRIEND.FRIEND_SLEF_INVALID;
+  if (friendState) {
+    if (friendState.state == 'success') throw error.FRIEND.ALREADY_FRIEND;
+    if (friendState.state == 'requesting') throw error.FRIEND.ALREADY_REQUESTING;
+    if (friendState.state == 'requested') throw error.FRIEND.ALREADY_REQUESTED;
+  }
 
   await User.findOneAndUpdate(
       {_id: userId},
@@ -96,7 +100,6 @@ async function acceptFriendRequest (userId, targetId) {
 async function deleteFriend (userId, targetId) {
   const friendState = await findFriendById(userId, targetId);
   if (!friendState) throw error.FRIEND.NOT_FRIEND;
-  if (friendState.state != 'success') throw error.FRIEND.NOT_FRIEND;
 
   await User.findOneAndUpdate(
       {_id: userId},
