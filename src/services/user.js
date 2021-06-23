@@ -8,6 +8,7 @@ module.exports = {
   userIdExist,
   findUserById,
   updateUserById,
+  checkUserIdValidAndExist,
 }
 
 async function findUsers () {
@@ -23,6 +24,10 @@ async function userIdExist (userId) {
     throw e;
   }
   return !!user;
+}
+
+async function checkUserIdValidAndExist (userId) {
+  if (!await userIdExist(userId)) throw error.USER.USER_NOT_FOUND;
 }
 
 async function findUserById (userId) {
@@ -44,7 +49,7 @@ async function updateUserById (userId, data) {
     }
   }
 
-  if (!await userIdExist(userId)) throw error.USER.USER_NOT_FOUND;
+  await checkUserIdValidAndExist(userId);
 
   newUser = await User.findOneAndUpdate(
       {_id: userId},
