@@ -47,7 +47,7 @@ async function login (emailOrName, password) {
   // find user with email first
   user = await User.findOne({email: emailOrName}).select('email name password');
   // if failed try to find with name
-  if (!user) await User.findOne({name: emailOrName});
+  if (!user) user = await User.findOne({name: emailOrName});
 
   // if both failed throw error
   if (!user) throw error.AUTH.USER_NOT_EXISTS;
