@@ -1,7 +1,7 @@
 const User = require('../models/users');
 const error = require('../errors');
 
-const IMMUTABLE_FIELDS = ['name', 'email', 'password', 'friends'];
+const IMMUTABLE_FIELDS = ['name', 'email', 'password', 'verifyStatus', 'friends'];
 
 module.exports = {
   findUsers,
