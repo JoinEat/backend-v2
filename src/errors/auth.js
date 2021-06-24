@@ -19,4 +19,8 @@ module.exports = {
     statusCode: 401,
     message: 'AUTH_FAIL',
   },
+  NO_SUCH_CODE: {
+    statusCode: 401,
+    message: 'NO_SUCH_CODE',
+  },
 }

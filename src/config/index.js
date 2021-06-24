@@ -25,5 +25,13 @@ module.exports = {
   jwt: {
     secret: process.env.JWT_SECRET,
   },
+
+  email: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+    clientId: process.env.EMAIL_CLIENT_ID,
+    clientSecret: process.env.EMAIL_CLIENT_SECRET,
+    refreshToken: process.env.EMAIL_REFRESH_TOKEN,
+  },
 };
 

@@ -1,12 +1,17 @@
 const argon2 = require('argon2');
 const User = require('../models/users');
+const VerifyCode = require('../models/verifyCode');
 const error = require('../errors');
 const jwt = require('jsonwebtoken');
 const config = require('../config');
+const userService = require('./user');
+const mailService = require('./mail');
 
 module.exports = {
   signUp,
   login,
+  sendVerifyMail,
+  verifyWithCode,
 };
 
 async function signUp (email, password, name) {
@@ -47,7 +52,6 @@ async function login (emailOrName, password) {
   // if both failed throw error
   if (!user) throw error.AUTH.USER_NOT_EXISTS;
 
-  console.log(user.password, password);
   const passwordMatched = await argon2.verify(user.password, password);
   if (!passwordMatched) throw error.AUTH.PASSWORD_INCORRECT;
 
@@ -69,4 +73,45 @@ function generateToken (user) {
   const expiration = '6h';
 
   return jwt.sign({data}, secret, {expiresIn: expiration});
+}
+
+async function sendVerifyMail (userId) {
+  await userService.checkUserIdValidAndExist(userId);
+  user = await userService.findUserById(userId);
+
+  verifyCode = await generateCode(userId);
+
+  return mailService.sendTextToEmailAddress(
+      user.email,
+      'Verify Email Address for When2Eat',
+      `Hi ${user.name},\n\n`+
+      'We just need to verify your email address before you can access When2Eat.\n\n' +
+      `Verify your email address with code ${verifyCode.code}\n\n` +
+      'Thanks! \n\n The When2Eat team'
+  );
+}
+
+async function generateCode(userId) {
+  code = Math.floor(100000 + Math.random() * 900000).toString();
+
+  verifyCode = new VerifyCode({
+    user: userId,
+    code
+  });
+
+  return verifyCode.save();
+}
+
+async function verifyWithCode (userId, code) {
+  await userService.checkUserIdValidAndExist(userId);
+
+  const verifyCode = await VerifyCode.findOne({user: userId, code}).exec();
+  if (!verifyCode) throw error.AUTH.NO_SUCH_CODE;
+
+  const user = await User.findOneAndUpdate(
+    {_id: userId},
+    {$set: {verifyStatus: 'success'}},
+  );
+
+  return user;
 }

@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema(
       gender: String,
       department: String,
       avatar: String,
+      verifyStatus: {
+        type: String,
+        default: 'none',
+      },
       friends: [
         {
           friendId: {

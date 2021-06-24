@@ -7,7 +7,9 @@ module.exports = {
   login,
   getUserWithId,
   updateUser,
-}
+  sendVerifyMail,
+  verifyWithCode,
+};
 
 async function listUsers (req, res) {
   const users = await userService.findUsers();
@@ -57,6 +59,32 @@ async function updateUser (req, res, next) {
   let user;
   try {
     user = await userService.updateUserById(userId, req.body);
+  } catch (e) {
+    return next(e);
+  }
+
+  return res.json({user}).status(200);
+}
+
+async function sendVerifyMail (req, res, next) {
+  const userId = req.user._id;
+
+  try {
+    await authService.sendVerifyMail(userId);
+  } catch (e) {
+    return next(e);
+  }
+
+  return res.json({message: 'SUCCESS'}).status(200);
+}
+
+async function verifyWithCode (req, res, next) {
+  const userId = req.params.userId;
+  const code = req.params.code;
+
+  let user;
+  try {
+    user = await authService.verifyWithCode(userId, code);
   } catch (e) {
     return next(e);
   }

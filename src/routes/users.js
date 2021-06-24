@@ -5,6 +5,9 @@ const {isAuth, attachUser} = require('../middleware');
 module.exports = function () {
   const router = new Router();
 
+  router.post('/verify/:userId/:code', userController.verifyWithCode);
+  router.get('/verify', attachUser, isAuth, userController.sendVerifyMail);
+
   router.get('/', userController.listUsers);
   router.put('/', attachUser, isAuth, userController.updateUser);
   router.post('/', userController.signUp);
