@@ -43,6 +43,9 @@ jobs:
             docker build -t tmd910607/when2eat-api:$TAG .
             echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
             docker push tmd910607/when2eat-api:$TAG
+      - add_ssh_keys:
+          fingerprints:
+            - "0d:95:bd:36:80:fc:a1:94:dd:87:7e:fe:c4:ec:14:71"
       - run:
           name: Deploy app to Server via Docker
           command: |
