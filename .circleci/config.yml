@@ -24,7 +24,7 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints:
-            - "f2:a8:4a:34:c4:a9:05:36:97:8c:95:f2:ea:0a:86:47"
+            - "0d:95:bd:36:80:fc:a1:94:dd:87:7e:fe:c4:ec:14:71"
       - run:
           name: Deploy app to Server via Docker
           command: |
