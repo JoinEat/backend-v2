@@ -22,6 +22,10 @@ jobs:
     steps:
       # Checkout the code as the first step.
       - checkout
+      - run:
+          name: Setup VirtualEnv
+          command: |
+            echo 'export TAG=0.1.${CIRCLE_BUILD_NUM}' >> $BASH_ENV
       # Next, the node orb's install-packages step will install the dependencies from a package.json.
       # The orb install-packages step will also automatically cache them for faster future runs.
       - node/install-packages
@@ -36,9 +40,9 @@ jobs:
       - run:
           name: Build and Push Docker Image
           command: |
-            docker build -t tmd910607/when2eat-api .
+            docker build -t tmd910607/when2eat-api:$TAG .
             echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-            docker push tmd910607/when2eat-api
+            docker push tmd910607/when2eat-api:$TAG
 
 workflows:
   # Below is the definition of your workflow.
