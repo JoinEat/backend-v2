@@ -31,6 +31,12 @@ jobs:
       - run:
           name: Run tests
           command: npm test
+      - run:
+          name: Build and Push Docker Image
+          command: |
+            docker build -t tmd910607/when2eat-api .
+            echo $DOCKER_PASS | docker login -u $DOCKER_UESR --password-stdin
+            docker push tmd910607/when2eat-api
 
 workflows:
   # Below is the definition of your workflow.
