@@ -43,6 +43,10 @@ jobs:
             docker build -t tmd910607/when2eat-api:$TAG .
             echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
             docker push tmd910607/when2eat-api:$TAG
+      - run:
+          name: Deploy app to Server via Docker
+          command: |
+            ssh -o StrictHostKeyChecking=no tmd910607_gmail_com@34.72.40.119 "/bin/bash ./deploy_app.sh tmd910607/when2eat-api:$TAG"          
 
 workflows:
   # Below is the definition of your workflow.
