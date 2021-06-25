@@ -37,7 +37,7 @@ jobs:
           name: Build and Push Docker Image
           command: |
             docker build -t tmd910607/when2eat-api .
-            echo $DOCKER_PASS | docker login -u $DOCKER_UESR --password-stdin
+            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
             docker push tmd910607/when2eat-api
 
 workflows:
