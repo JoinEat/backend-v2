@@ -21,7 +21,14 @@ jobs:
     # CircleCI will report the results back to your VCS provider.
     steps:
       # Checkout the code as the first step.
+      - add_ssh_keys:
+          fingerprints:
+            - "0d:95:bd:36:80:fc:a1:94:dd:87:7e:fe:c4:ec:14:71"
       - checkout
+      - run:
+          name: Setup VirtualEnv
+          command: |
+            echo 'export TAG=0.1.${CIRCLE_BUILD_NUM}' >> $BASH_ENV
       # Next, the node orb's install-packages step will install the dependencies from a package.json.
       # The orb install-packages step will also automatically cache them for faster future runs.
       - node/install-packages
@@ -31,12 +38,18 @@ jobs:
       - run:
           name: Run tests
           command: npm test
+      - setup_remote_docker:
+          version: 19.03.13
       - run:
           name: Build and Push Docker Image
           command: |
-            docker build -t tmd910607/when2eat-api .
-            echo $DOCKER_PASS | docker login -u $DOCKER_UESR --password-stdin
-            docker push tmd910607/when2eat-api
+            docker build -t tmd910607/when2eat-api:$TAG .
+            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+            docker push tmd910607/when2eat-api:$TAG
+      - run:
+          name: Deploy app to Server via Docker
+          command: |
+            ssh -o StrictHostKeyChecking=no tmd910607_gmail_com@34.72.40.119 "/bin/bash ./deploy_app.sh tmd910607/when2eat-api:$TAG"     
 
 workflows:
   # Below is the definition of your workflow.
