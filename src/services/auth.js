@@ -45,7 +45,7 @@ async function signUp (email, password, name) {
 async function login (emailOrName, password) {
   let user;
   // find user with email first
-  user = await User.findOne({email: emailOrName}).select('email name password');
+  user = await User.findOne({email: emailOrName});
   // if failed try to find with name
   if (!user) user = await User.findOne({name: emailOrName});
 
@@ -55,7 +55,7 @@ async function login (emailOrName, password) {
   const passwordMatched = await argon2.verify(user.password, password);
   if (!passwordMatched) throw error.AUTH.PASSWORD_INCORRECT;
 
-  delete user.password;
+  user = await User.findById(user._id).select('-password');
   return {
     user,
     token: generateToken(user),
