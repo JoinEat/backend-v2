@@ -12,7 +12,22 @@ module.exports = {
 };
 
 async function listUsers (req, res) {
-  const users = await userService.findUsers();
+  let excludeFriends = undefined;
+  if (req.query.excludeFriends == 'true' && req.user) {
+    excludeFriends = req.user._id;
+  }
+
+  query = req.query || {};
+  filter = Object.keys(query)
+      .filter(key => userService.SEARCH_FIELDS.includes(key))
+      .reduce((obj, key) => {
+          obj[key] = query[key];
+          return obj;
+      }, {});
+
+  let nickNameSubstr = req.query.nickNameContain;
+
+  const users = await userService.findUsers(filter, excludeFriends, nickNameSubstr);
   return res.json({users}).status(200);
 }
 

@@ -11,4 +11,8 @@ module.exports = {
     statusCode: 400,
     message: 'FIELD_NOT_MUTABLE'
   },
+  FIELD_NOT_SEARCHABLE: {
+    statusCode: 400,
+    message: 'FIELD_NOT_SEARCHABLE'
+  },
 }

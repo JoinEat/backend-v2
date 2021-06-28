@@ -2,6 +2,7 @@ const User = require('../models/users');
 const error = require('../errors');
 
 const IMMUTABLE_FIELDS = ['name', 'email', 'password', 'verifyStatus', 'friends'];
+const SEARCH_FIELDS = ['email', 'name', 'realName', 'nickName', 'school', 'gender', 'department'];
 
 module.exports = {
   findUsers,
@@ -9,10 +10,20 @@ module.exports = {
   findUserById,
   updateUserById,
   checkUserIdValidAndExist,
+  SEARCH_FIELDS,
 }
 
-async function findUsers () {
-  return User.find().select('-password');
+async function findUsers (filter, excludeFriendOfUser, nickNameSubstr) {
+  for (key in filter) {
+    if (!SEARCH_FIELDS.includes(key)) throw error.USER.FIELD_NOT_SEARCHABLE;
+  }
+  if (excludeFriendOfUser) {
+    filter['friends.friendId'] = {$ne: excludeFriendOfUser};
+  }
+  if (nickNameSubstr) {
+    filter['nickName'] = {$regex: nickNameSubstr};
+  }
+  return User.find(filter).select('-password');
 }
 
 async function userIdExist (userId) {
