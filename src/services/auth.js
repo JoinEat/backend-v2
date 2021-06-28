@@ -111,6 +111,7 @@ async function verifyWithCode (userId, code) {
   const user = await User.findOneAndUpdate(
     {_id: userId},
     {$set: {verifyStatus: 'success'}},
+    {new: true},
   );
 
   return user;
