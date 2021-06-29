@@ -13,7 +13,7 @@ module.exports = {
   SEARCH_FIELDS,
 }
 
-async function findUsers (filter, excludeFriendOfUser, nickNameSubstr) {
+async function findUsers (filter, excludeFriendOfUser, nickNameSubstr, limit, nextKey) {
   for (key in filter) {
     if (!SEARCH_FIELDS.includes(key)) throw error.USER.FIELD_NOT_SEARCHABLE;
   }
@@ -23,7 +23,14 @@ async function findUsers (filter, excludeFriendOfUser, nickNameSubstr) {
   if (nickNameSubstr) {
     filter['nickName'] = {$regex: nickNameSubstr};
   }
-  return User.find(filter).select('-password');
+
+  // pagnination
+  if (!limit || limit > 100) limit = 100;
+  if (nextKey) {
+    filter['_id'] = {$gt: nextKey};
+  }
+
+  return User.find(filter).limit(limit).select('-password');
 }
 
 async function userIdExist (userId) {

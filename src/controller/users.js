@@ -27,7 +27,11 @@ async function listUsers (req, res) {
 
   let nickNameSubstr = req.query.nickNameContain;
 
-  const users = await userService.findUsers(filter, excludeFriends, nickNameSubstr);
+  // pagnination
+  const limit = parseInt(req.query.limit);
+  const nextKey = req.query.nextKey;
+
+  const users = await userService.findUsers(filter, excludeFriends, nickNameSubstr, limit, nextKey);
   return res.json({users}).status(200);
 }
 

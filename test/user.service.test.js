@@ -189,5 +189,17 @@ describe('User service', function() {
       expect(result).to.have.lengthOf(1);
       expect(result[0]).to.have.deep.property('_id', users[0]._id);
     });
+
+    it('When nextKey provided, return result after nextKey', async function () {
+      // Arrange
+      users = await createUsers(10);
+
+      // Act
+      result = await userService.findUsers({}, undefined, undefined, undefined, users[3]._id);
+
+      // Assert
+      expect(result).to.have.lengthOf(6);
+      expect(result[0]).to.have.deep.property('_id', users[4]._id);
+    });
   });
 });
