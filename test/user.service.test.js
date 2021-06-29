@@ -133,7 +133,7 @@ describe('User service', function() {
     });
   });
 
-  describe.only('findUsers', function(){
+  describe('findUsers', function(){
     it('When filter is provided and valid, return filtered users', async function () {
       // Arrange
       users = await createUsers(3);
@@ -169,7 +169,7 @@ describe('User service', function() {
       expect(result).to.have.lengthOf(2);
     });
 
-    it.only('When nickNameSubstr provided, return filtered users', async function () {
+    it('When nickNameSubstr provided, return filtered users', async function () {
       // Arrange
       users = await createUsers(3);
       await userService.updateUserById(users[0]._id, {
