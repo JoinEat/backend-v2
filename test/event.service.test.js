@@ -6,7 +6,7 @@ const eventService = require('../src/services/event');
 const { createUsers } = require('./user.helper');
 const { EVENT_NOT_FOUND, EVENTID_NOT_VALID, FIELD_NOT_MUTABLE } = require('../src/errors/event');
 const { create } = require('../src/models/event');
-
+const Event = require('../src/models/event');
 chai.use(chaiAsPromised);
 
 const expect = chai.expect;
@@ -125,6 +125,150 @@ describe('Event service', function () {
       // Assert
       expect(updatedEvent).to.be.rejected.
         and.to.eventually.equal(FIELD_NOT_MUTABLE);
+    });
+  });
+
+  describe('getInvitations', function() {
+    it('When eventId is valid, return all invitaion', async function () {
+      // Arrange
+      const users = await createUsers(3);
+      const curEvent = await eventService.createEvent(users[0]._id, 'test event');
+      await eventService.inviteToEvent(curEvent._id, users[0]._id, users[1]._id);
+      await eventService.requestToJoin(curEvent._id, users[2]._id);
+
+      // Act
+      const result = await eventService.getInvitations(curEvent._id);
+
+      // Assert
+      expect(result).to.have.lengthOf(1);
+      expect(result[0]).to.have.deep.property('memberId', users[1]._id);
+    });
+  });
+
+  describe('getInvitations', function() {
+    it('When eventId is valid, return all invitaion', async function () {
+      // Arrange
+      const users = await createUsers(3);
+      const curEvent = await eventService.createEvent(users[0]._id, 'test event');
+      await eventService.inviteToEvent(curEvent._id, users[0]._id, users[1]._id);
+      await eventService.requestToJoin(curEvent._id, users[2]._id);
+
+      // Act
+      const result = await eventService.getRequests(curEvent._id);
+
+      // Assert
+      expect(result).to.have.lengthOf(1);
+      expect(result[0]).to.have.deep.property('memberId', users[2]._id);
+    });
+  });
+
+  describe('getMembers', function() {
+    it('When eventId is valid, return all invitaion', async function () {
+      // Arrange
+      const users = await createUsers(3);
+      const curEvent = await eventService.createEvent(users[0]._id, 'test event');
+
+      // Act
+      const result = await eventService.getMembers(curEvent._id);
+
+      // Assert
+      expect(result).to.have.lengthOf(1);
+      expect(result[0]).to.have.deep.property('memberId', users[0]._id);
+    });
+  });
+
+  describe('inviteToEvent', function() {
+    it('When invite sent, modify both event.members and user.invitations', async function () {
+      // Arrange
+      const users = await createUsers(2);
+      const curEvent = await eventService.createEvent(users[0]._id, 'test event');
+      const eventId = curEvent._id;
+
+      // Act
+      await eventService.inviteToEvent(eventId, users[0]._id, users[1]._id);
+
+      // Assert
+      const result = await eventService.getInvitations(curEvent._id);
+      expect(result).to.have.lengthOf(1);
+      expect(result[0]).to.have.deep.property('memberId', users[1]._id);
+
+      const user1 = await userService.findUserById(users[1]._id);
+      expect(user1.eventInvitations).to.have.lengthOf(1);
+      expect(user1.eventInvitations[0]).to.have.deep.property('eventId', eventId);
+    });
+  });
+
+  describe('acceptInvitaion', function() {
+    it('When invite accepted, modify event.members and pull user.invitations', async function () {
+      // Arrange
+      const users = await createUsers(2);
+      const curEvent = await eventService.createEvent(users[0]._id, 'test event');
+      const eventId = curEvent._id;
+      await eventService.inviteToEvent(eventId, users[0]._id, users[1]._id);
+
+      // Act
+      await eventService.acceptInvitation(eventId, users[1]._id);
+
+      // Assert
+      const result = await eventService.getMembers(curEvent._id);
+      expect(result).to.have.lengthOf(2);
+      expect(result[1]).to.have.deep.property('memberId', users[1]._id);
+
+      const user1 = await userService.findUserById(users[1]._id);
+      expect(user1.eventInvitations).to.have.lengthOf(0);
+    });
+  });
+
+  describe('requestToJoin', function() {
+    it('When request sent, modify event.members', async function () {
+      // Arrange
+      const users = await createUsers(2);
+      const curEvent = await eventService.createEvent(users[0]._id, 'test event');
+      const eventId = curEvent._id;
+
+      // Act
+      await eventService.requestToJoin(eventId, users[1]._id);
+
+      // Assert
+      const result = await eventService.getRequests(curEvent._id);
+      expect(result).to.have.lengthOf(1);
+      expect(result[0]).to.have.deep.property('memberId', users[1]._id);
+    });
+  });
+
+  describe('acceptRequest', function() {
+    it('When request accepted, modify event.members', async function () {
+      // Arrange
+      const users = await createUsers(2);
+      const curEvent = await eventService.createEvent(users[0]._id, 'test event');
+      const eventId = curEvent._id;
+      await eventService.requestToJoin(eventId, users[1]._id);
+
+      // Act
+      await eventService.acceptRequest(eventId, users[0]._id, users[1]._id);
+
+      // Assert
+      const result = await eventService.getMembers(curEvent._id);
+      expect(result).to.have.lengthOf(2);
+      expect(result[1]).to.have.deep.property('memberId', users[1]._id);
+    });
+  });
+
+  describe('leaveEvent', function () {
+    it('Pull event.member and unset currentEvent', async function () {
+      // Arrange
+      const users = await createUsers(2);
+      const curEvent = await eventService.createEvent(users[0]._id, 'test event');
+      const eventId = curEvent._id;
+
+      // Act
+      await eventService.leaveEvent(eventId, users[0]._id);
+      
+      // Assert
+      const result = await eventService.getMembers(curEvent._id);
+      expect(result).to.have.lengthOf(0);
+      const user = await userService.findUserById(users[0]._id);
+      expect(user.currentEvent).to.be.undefined;
     });
   });
 });

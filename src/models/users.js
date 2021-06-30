@@ -36,6 +36,19 @@ const userSchema = new mongoose.Schema(
           updateAt: Date,
         },
       ],
+      eventInvitations: [
+        {
+          eventId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Event',
+          },
+          updateAt: Date,
+        },
+      ],
+      currentEvent: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Event',
+      },
 });
 
 const userModel = mongoose.model('User', userSchema);

@@ -16,6 +16,16 @@ const EventSchema = new mongoose.Schema({
   position: String,
   latitude: Number,
   longitude: Number,
+  members: [
+    {
+      memberId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+      state: String, // requested, inviting, success
+      updateAt: Date,
+    },
+  ],
 });
 
 EventSchema.pre('save', function(next) {
