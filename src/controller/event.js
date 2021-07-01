@@ -6,6 +6,14 @@ module.exports = {
   getEventById,
   updateEvent,
   deleteEvent,
+  getMembers,
+  getInvitations,
+  getRequests,
+  sendInvitation,
+  sendRequest,
+  acceptInvitation,
+  acceptRequest,
+  leaveEvent,
 };
 
 async function getEvents (req, res, next) {
@@ -69,5 +77,97 @@ async function deleteEvent (req, res, next) {
   }
 
   return res.json({message: 'SUCCESS'}).status(200);
+}
 
+async function getMembers (req, res, next) {
+  const eventId = req.params.eventID;
+  let members;
+  try {
+    members = await eventService.getMembers(eventId);
+  } catch (e) {
+    return next(e);
+  }
+  return res.json({members}).status(200);
+}
+
+async function getInvitations (req, res, next) {
+  const eventId = req.params.eventID;
+  let invitations;
+  try {
+    invitations = await eventService.getInvitations(eventId);
+  } catch (e) {
+    return next(e);
+  }
+  return res.json({invitations}).status(200);
+}
+
+async function getRequests (req, res, next) {
+  const eventId = req.params.eventID;
+  let requests;
+  try {
+    requests = await eventService.getRequests(eventId);
+  } catch (e) {
+    return next(e);
+  }
+  return res.json({requests}).status(200);
+}
+
+async function sendInvitation (req, res, next) {
+  const eventId = req.params.eventID;
+  const targetId = req.body.targetID;
+  const userId = req.user._id;
+  console.log(targetId, userId);
+  try {
+    await eventService.inviteToEvent(eventId, userId, targetId);
+  } catch(e) {
+    return next(e);
+  }
+  return res.json({message: 'SUCCESS'});
+}
+
+async function sendRequest (req, res, next) {
+  const eventId = req.params.eventID;
+  const userId = req.user._id;
+  try {
+    await eventService.requestToJoin(eventId, userId);
+  } catch(e) {
+    return next(e);
+  }
+  return res.json({message: 'SUCCESS'});
+
+}
+
+async function acceptInvitation (req, res, next) {
+  const eventId = req.params.eventID;
+  const userId = req.user._id;
+  try {
+    await eventService.acceptInvitation(eventId, userId);
+  } catch(e) {
+    return next(e);
+  }
+  return res.json({message: 'SUCCESS'});
+
+}
+
+async function acceptRequest (req, res, next) {
+  const eventId = req.params.eventID;
+  const userId = req.user._id;
+  const targetId = req.params.targetID;
+  try {
+    await eventService.acceptRequest(eventId, userId, targetId);
+  } catch(e) {
+    return next(e);
+  }
+  return res.json({message: 'SUCCESS'});
+}
+
+async function leaveEvent (req, res, next) {
+  const eventId = req.params.eventID;
+  const userId = req.user._id;
+  try {
+    await eventService.leaveEvent(eventId, userId);
+  } catch(e) {
+    return next(e);
+  }
+  return res.json({message: 'SUCCESS'});
 }
