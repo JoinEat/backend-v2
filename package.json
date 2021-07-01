@@ -21,9 +21,11 @@
     "pino": "^6.11.3",
     "pino-http": "^5.5.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "nyc": "^15.1.0"
+  },
   "scripts": {
-    "test": "mocha --config ./test/.mocharc.js --exit"
+    "test": "nyc mocha --config ./test/.mocharc.js --exit"
   },
   "repository": {
     "type": "git",
