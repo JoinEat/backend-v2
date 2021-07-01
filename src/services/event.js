@@ -221,7 +221,7 @@ async function acceptRequest (eventId, userId, targetId) {
 
   await updateMemberStatus(eventId, targetId, 'success');
   await User.findOneAndUpdate(
-    {_id: userId},
+    {_id: targetId},
     {currentEvent: eventId,},
   );
 }
