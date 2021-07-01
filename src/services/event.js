@@ -57,6 +57,11 @@ async function createEvent (userId, title) {
 
   await addMemberWithStatus(resEvent._id, userId, 'success');
   resEvent = await Event.findById(resEvent._id);
+
+  await User.findOneAndUpdate(
+    {_id: userId},
+    {currentEvent: resEvent._id},
+  );
   return resEvent;
 }
 
@@ -144,6 +149,11 @@ async function checkNotMember (eventId, userId) {
   if (status == 'requested') throw error.EVENT.ALREADY_REQUESTED;
 }
 
+async function checkNoCurrentEvent (userId) {
+  const user = await userService.findUserById(userId);
+  if (user.currentEvent) throw error.EVENT.ALREADY_IN_OTHER_EVENT;
+}
+
 async function getMemberWithStatus (eventId, status) {
   const currentEvent = await Event.findById(eventId);
   result = []
@@ -190,6 +200,7 @@ async function inviteToEvent (eventId, userId, targetId) {
 async function acceptInvitation (eventId, userId) {
   await userService.checkUserIdValidAndExist(userId);
   await checkEventIdValidAndExist(eventId);
+  await checkNoCurrentEvent(userId);
   const status = await getMemberStatus(eventId, userId);
   if (status != 'inviting') throw error.EVENT.NOT_INVITING;
 
@@ -216,6 +227,7 @@ async function acceptRequest (eventId, userId, targetId) {
   await userService.checkUserIdValidAndExist(targetId);
   await checkEventIdValidAndExist(eventId);
   await checkPermission(eventId, userId);
+  await checkNoCurrentEvent(targetId);
   const status = await getMemberStatus(eventId, targetId);
   if (status != 'requested') throw error.EVENT.NOT_REQUESTED;
 

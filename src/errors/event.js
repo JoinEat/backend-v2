@@ -39,4 +39,8 @@ module.exports = {
     statusCode: 403,
     message: 'NO_PERMISSION',
   },
+  ALREADY_IN_OTHER_EVENT: {
+    statusCode: 400,
+    message: 'ALREADY_IN_OTHER_EVENT',
+  },
 };
