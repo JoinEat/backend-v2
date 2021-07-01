@@ -216,6 +216,7 @@ describe('Event service', function () {
 
       const user1 = await userService.findUserById(users[1]._id);
       expect(user1.eventInvitations).to.have.lengthOf(0);
+      expect(user1).to.have.deep.property('currentEvent', eventId);
     });
   });
 
@@ -237,7 +238,7 @@ describe('Event service', function () {
   });
 
   describe('acceptRequest', function() {
-    it.only('When request accepted, modify event.members', async function () {
+    it('When request accepted, modify event.members', async function () {
       // Arrange
       const users = await createUsers(2);
       const curEvent = await eventService.createEvent(users[0]._id, 'test event');
