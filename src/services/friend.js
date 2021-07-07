@@ -12,11 +12,24 @@ module.exports = {
   deleteFriend,
 }
 
-async function findFriends (userId) {
+async function findFriends (userId, state) {
   await userService.checkUserIdValidAndExist(userId);
 
   userWithFriends = await User.findById(userId).populate('friends.friendId', '_id name email');
-  return userWithFriends.friends;
+
+  friends = userWithFriends.friends;
+  result = []
+  if (state) {
+    for (friend of friends) {
+      if (friend.state == state) {
+        result.push(friend);
+      }
+    }
+  } else {
+    result = friends;
+  }
+
+  return result;
 }
 
 async function findFriendById (userId, targetId) {

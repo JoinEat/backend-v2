@@ -9,8 +9,11 @@ module.exports = {
 
 async function getFriends (req, res, next) {
   let friends;
+
+  const stateFilter = req.query.state;
+
   try {
-    friends = await friendService.findFriends(req.query.userID);
+    friends = await friendService.findFriends(req.query.userID, stateFilter);
   } catch (e) {
     return next(e);
   }
