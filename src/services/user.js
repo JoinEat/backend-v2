@@ -2,6 +2,7 @@ const User = require('../models/users');
 const error = require('../errors');
 
 const IMMUTABLE_FIELDS = ['name', 'email', 'password', 'verifyStatus', 'friends'];
+const MUTABLE_FIELDS = ['realName', 'nickName', 'school', 'gender', 'department', 'avatar', 'public'];
 const SEARCH_FIELDS = ['email', 'name', 'realName', 'nickName', 'school', 'gender', 'department'];
 const publicFields = ['email', 'name', '_id', 'nickName'];
 
@@ -75,7 +76,7 @@ async function findUserById (userId, targetId, permission) {
 
 async function updateUserById (userId, data) {
   for (key in data) {
-    if (IMMUTABLE_FIELDS.includes(key)) {
+    if (!MUTABLE_FIELDS.includes(key)) {
       throw error.USER.FIELD_NOT_MUTABLE;
     }
   }
