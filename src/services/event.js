@@ -24,7 +24,7 @@ module.exports = {
 }
 
 async function getEvents () {
-  return Event.find().exec();
+  return Event.find({public: true}).exec();
 }
 
 
@@ -43,10 +43,16 @@ async function checkEventIdValidAndExist (eventId) {
   if (!await eventIdExist(eventId)) throw error.EVENT.EVENT_NOT_FOUND;
 }
 
-async function getEventById (eventId) {
+async function getEventById (eventId, userId) {
   await checkEventIdValidAndExist(eventId);
 
-  return Event.findById(eventId).exec();
+  result = await Event.findById(eventId);
+  status = userId ? await getMemberStatus(eventId, userId) : 'none';
+  if (!result.public && status != 'success') {
+    throw error.Event.NO_PERMISSION;
+  }
+
+  return result;
 }
 
 async function createEvent (userId, title) {
@@ -215,9 +221,17 @@ async function acceptInvitation (eventId, userId) {
   await updateMemberStatus(eventId, userId, "success");
 }
 
+async function checkPublic (eventId) {
+  const cur = await Event.findById(eventId);
+  if (!cur.public) {
+    throw error.EVENT.NO_PERMISSION;
+  }
+}
+
 async function requestToJoin (eventId, userId) {
   await userService.checkUserIdValidAndExist(userId);
   await checkEventIdValidAndExist(eventId);
+  await checkPublic(eventId);
   await checkNotMember(eventId, userId);
 
   await addMemberWithStatus(eventId, userId, 'requested');

@@ -26,6 +26,10 @@ const EventSchema = new mongoose.Schema({
       updateAt: Date,
     },
   ],
+  public: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 EventSchema.pre('save', function(next) {

@@ -45,7 +45,7 @@ async function getEventById (req, res, next) {
   eventId = req.params.eventID;
   let foundEvent;
   try {
-    foundEvent = await eventService.getEventById(eventId);
+    foundEvent = await eventService.getEventById(eventId, req.user._id);
   } catch (e) {
     return next(e);
   }
