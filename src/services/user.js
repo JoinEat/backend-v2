@@ -3,6 +3,7 @@ const error = require('../errors');
 
 const IMMUTABLE_FIELDS = ['name', 'email', 'password', 'verifyStatus', 'friends'];
 const SEARCH_FIELDS = ['email', 'name', 'realName', 'nickName', 'school', 'gender', 'department'];
+const publicFields = ['email', 'name', '_id', 'nickName'];
 
 module.exports = {
   findUsers,
@@ -57,19 +58,18 @@ async function checkUserIdValidAndExist (userId) {
 }
 
 async function findUserById (userId, targetId, permission) {
-  let user;
+  await checkUserIdValidAndExist(targetId);
+  let user = await User.findById(targetId).select('-password');
+  user = user.toObject();
 
-  selectStr = (targetId && await isFriendOf(userId, targetId)) ?
-    '-password' : 'name email nickName';
-  if (permission) selectStr = '';
-  
-  try {
-    user = await User.findById(targetId).select(selectStr);
-  } catch(e) {
-    if (e.name == 'CastError') throw error.USER.USERID_NOT_VALID;
-    throw e;
+  if (!permission && isFriendOf(userId, targetId) && !user.public) {
+    user = Object.keys(user)
+      .filter(key => publicFields.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = user[key];
+        return obj;
+      }, {});
   }
-  if (!user) throw error.USER.USER_NOT_FOUND;
   return user;
 }
 
