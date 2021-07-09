@@ -51,6 +51,7 @@ async function getEventById (eventId) {
 
 async function createEvent (userId, title) {
   await userService.checkUserIdValidAndExist(userId);
+  await checkNoCurrentEvent(userId);
   
   newEvent = new Event({title, creator: userId});
   resEvent = await newEvent.save();

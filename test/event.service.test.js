@@ -102,6 +102,20 @@ describe('Event service', function () {
       const user = await userService.findUserById(userId);
       expect(user).to.have.deep.property('currentEvent', newEvent._id);
     });
+
+    it('When user currentEvent is set, raise ALREADY_IN_OTHER_EVENT', async function () {
+      // Arrange
+      const users = await createUsers(3);
+      const userId = users[0]._id;
+      await eventService.createEvent(userId, 'test_event');
+
+      // Act
+      const prom = eventService.createEvent(userId, 'test_event');
+
+      await expect(prom).to.eventually.be.rejected
+          .and.eventually.be.equal(ALREADY_IN_OTHER_EVENT);
+
+    });
   });
 
   describe('updateEvent', function () {
