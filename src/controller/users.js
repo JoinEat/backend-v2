@@ -65,7 +65,7 @@ async function getUserWithId (req, res, next) {
   const userId = req.params.userId;
   let user;
   try {
-    user = await userService.findUserById(userId);
+    user = await userService.findUserById(req.user._id, userId);
   } catch (e) {
     return next(e);
   }

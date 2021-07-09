@@ -77,7 +77,7 @@ function generateToken (user) {
 
 async function sendVerifyMail (userId) {
   await userService.checkUserIdValidAndExist(userId);
-  user = await userService.findUserById(userId);
+  user = await userService.findUserById(null, userId);
 
   verifyCode = await generateCode(userId);
 

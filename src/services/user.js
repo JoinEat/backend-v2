@@ -13,6 +13,14 @@ module.exports = {
   SEARCH_FIELDS,
 }
 
+async function isFriendOf (userId, targetId) {
+  if (!userId || !targetId) return false;
+  const cur = await User.findById(userId, {
+    friends: {$elemMatch: {friendId: targetId}},
+  });
+  return (cur.friends.length && cur.friends[0].state == 'success');
+}
+
 async function findUsers (filter, excludeFriendOfUser, nickNameSubstr, limit, nextKey) {
   for (key in filter) {
     if (!SEARCH_FIELDS.includes(key)) throw error.USER.FIELD_NOT_SEARCHABLE;
@@ -30,7 +38,7 @@ async function findUsers (filter, excludeFriendOfUser, nickNameSubstr, limit, ne
     filter['_id'] = {$gt: nextKey};
   }
 
-  return User.find(filter).limit(limit).select('-password');
+  return User.find(filter).limit(limit).select('email name nickName');
 }
 
 async function userIdExist (userId) {
@@ -48,10 +56,15 @@ async function checkUserIdValidAndExist (userId) {
   if (!await userIdExist(userId)) throw error.USER.USER_NOT_FOUND;
 }
 
-async function findUserById (userId) {
+async function findUserById (userId, targetId, permission) {
   let user;
+
+  selectStr = (targetId && await isFriendOf(userId, targetId)) ?
+    '-password' : 'name email nickName';
+  if (permission) selectStr = '';
+  
   try {
-    user = await User.findById(userId).select('-password');
+    user = await User.findById(targetId).select(selectStr);
   } catch(e) {
     if (e.name == 'CastError') throw error.USER.USERID_NOT_VALID;
     throw e;

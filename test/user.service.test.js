@@ -55,7 +55,7 @@ describe('User service', function() {
       const userId = user._id;
 
       // Act
-      const result = await userService.findUserById(userId);
+      const result = await userService.findUserById(null, userId);
 
       // Assert
       expect(result).to.have.deep.property('_id', userId);
@@ -66,7 +66,7 @@ describe('User service', function() {
       var userId = require('mongoose').Types.ObjectId();
 
       // Act
-      const result = userService.findUserById(userId);
+      const result = userService.findUserById(null, userId);
 
       // Assert
       await expect(result).to.eventually.be.rejected
@@ -78,7 +78,7 @@ describe('User service', function() {
       var userId = "test";
 
       // Act
-      const result = userService.findUserById(userId);
+      const result = userService.findUserById(null, userId);
 
       // Assert
       await expect(result).to.eventually.be.rejected

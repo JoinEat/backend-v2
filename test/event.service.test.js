@@ -99,7 +99,7 @@ describe('Event service', function () {
       // Assert
       const prom = eventService.checkEventIdValidAndExist(newEvent._id);
       expect(prom).to.be.fulfilled;
-      const user = await userService.findUserById(userId);
+      const user = await userService.findUserById(null, userId, true);
       expect(user).to.have.deep.property('currentEvent', newEvent._id);
     });
 
@@ -208,7 +208,7 @@ describe('Event service', function () {
       expect(result).to.have.lengthOf(1);
       expect(result[0]).to.have.deep.property('memberId', users[1]._id);
 
-      const user1 = await userService.findUserById(users[1]._id);
+      const user1 = await userService.findUserById(null, users[1]._id, true);
       expect(user1.eventInvitations).to.have.lengthOf(1);
       expect(user1.eventInvitations[0]).to.have.deep.property('eventId', eventId);
     });
@@ -230,7 +230,7 @@ describe('Event service', function () {
       expect(result).to.have.lengthOf(2);
       expect(result[1]).to.have.deep.property('memberId', users[1]._id);
 
-      const user1 = await userService.findUserById(users[1]._id);
+      const user1 = await userService.findUserById(null, users[1]._id, true);
       expect(user1.eventInvitations).to.have.lengthOf(0);
       expect(user1).to.have.deep.property('currentEvent', eventId);
     });
@@ -283,7 +283,7 @@ describe('Event service', function () {
       const result = await eventService.getMembers(curEvent._id);
       expect(result).to.have.lengthOf(2);
       expect(result[1]).to.have.deep.property('memberId', users[1]._id);
-      const user = await userService.findUserById(users[1]._id);
+      const user = await userService.findUserById(null, users[1]._id, true);
       expect(user).to.have.deep.property('currentEvent', eventId);
     });
 
@@ -316,7 +316,7 @@ describe('Event service', function () {
       // Assert
       const result = await eventService.getMembers(curEvent._id);
       expect(result).to.have.lengthOf(0);
-      const user = await userService.findUserById(users[0]._id);
+      const user = await userService.findUserById(null, users[0]._id, true);
       expect(user.currentEvent).to.be.undefined;
     });
   });

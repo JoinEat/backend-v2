@@ -49,6 +49,10 @@ const userSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Event',
       },
+      public: {
+        type: Boolean,
+        default: true,
+      },
 });
 
 const userModel = mongoose.model('User', userSchema);

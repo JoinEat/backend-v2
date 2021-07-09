@@ -151,7 +151,7 @@ async function checkNotMember (eventId, userId) {
 }
 
 async function checkNoCurrentEvent (userId) {
-  const user = await userService.findUserById(userId);
+  const user = await userService.findUserById(null, userId, true);
   if (user.currentEvent) throw error.EVENT.ALREADY_IN_OTHER_EVENT;
 }
 
