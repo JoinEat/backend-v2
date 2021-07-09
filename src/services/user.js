@@ -63,7 +63,7 @@ async function findUserById (userId, targetId, permission) {
   let user = await User.findById(targetId).select('-password');
   user = user.toObject();
 
-  if (!permission && isFriendOf(userId, targetId) && !user.public) {
+  if (!permission && targetId != userId && isFriendOf(userId, targetId) && !user.public) {
     user = Object.keys(user)
       .filter(key => publicFields.includes(key))
       .reduce((obj, key) => {
