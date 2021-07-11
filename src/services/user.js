@@ -1,10 +1,9 @@
 const User = require('../models/users');
 const error = require('../errors');
 
-const IMMUTABLE_FIELDS = ['name', 'email', 'password', 'verifyStatus', 'friends'];
 const MUTABLE_FIELDS = ['realName', 'nickName', 'school', 'gender', 'department', 'avatar', 'public'];
 const SEARCH_FIELDS = ['email', 'name', 'realName', 'nickName', 'school', 'gender', 'department'];
-const publicFields = ['email', 'name', '_id', 'nickName'];
+const PUBLIC_FIELDS = ['avatar', 'name', '_id', 'nickName'];
 
 module.exports = {
   findUsers,
@@ -40,7 +39,8 @@ async function findUsers (filter, excludeFriendOfUser, nickNameSubstr, limit, ne
     filter['_id'] = {$gt: nextKey};
   }
 
-  return User.find(filter).limit(limit).select('email name nickName');
+  selection = PUBLIC_FIELDS.join(' ');
+  return User.find(filter).limit(limit).select(selection);
 }
 
 async function userIdExist (userId) {
@@ -65,7 +65,7 @@ async function findUserById (userId, targetId, permission) {
 
   if (!permission && targetId != userId && isFriendOf(userId, targetId) && !user.public) {
     user = Object.keys(user)
-      .filter(key => publicFields.includes(key))
+      .filter(key => PUBLIC_FIELDS.includes(key))
       .reduce((obj, key) => {
         obj[key] = user[key];
         return obj;
