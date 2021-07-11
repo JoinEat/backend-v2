@@ -70,9 +70,8 @@ function generateToken (user) {
   };
 
   const secret = config.jwt.secret;
-  const expiration = '6h';
 
-  return jwt.sign({data}, secret, {expiresIn: expiration});
+  return jwt.sign({data}, secret, {});
 }
 
 async function sendVerifyMail (userId) {
