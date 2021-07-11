@@ -3,7 +3,9 @@ const error = require('../errors');
 
 const MUTABLE_FIELDS = ['realName', 'nickName', 'school', 'gender', 'department', 'avatar', 'public'];
 const SEARCH_FIELDS = ['email', 'name', 'realName', 'nickName', 'school', 'gender', 'department'];
-const PUBLIC_FIELDS = ['avatar', 'name', '_id', 'nickName'];
+const PUBLIC_FIELDS = ['avatar', 'name', '_id', 'nickName', 'public'];
+const PRIVATE_FIELDS = ['email', 'password', 'verifyStatus'];
+const PROTECTED_FIELDS = ['realName', 'school', 'gender', 'department', 'friends', 'eventInvitation', 'currentEvent'];
 
 module.exports = {
   findUsers,
@@ -40,7 +42,27 @@ async function findUsers (filter, excludeFriendOfUser, nickNameSubstr, limit, ne
   }
 
   selection = PUBLIC_FIELDS.join(' ');
-  return User.find(filter).limit(limit).select(selection);
+
+  projectParam = {};
+  for (fields of PUBLIC_FIELDS) {
+    projectParam[fields] = 1;
+  }
+
+  for (fields of PROTECTED_FIELDS) {
+    projectParam[fields] = {$cond:{
+        if: {$eq: ['$public', false]},
+        then: '$$REMOVE',
+        else: '$' + fields
+      }};
+  }
+
+  const query = await User.aggregate([
+    {$match: filter},
+    {$limit: limit},
+    {$project: projectParam},
+  ]);
+
+  return query;
 }
 
 async function userIdExist (userId) {
