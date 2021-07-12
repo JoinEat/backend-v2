@@ -23,5 +23,7 @@ module.exports = function () {
   router.put('/:eventID', attachUser, isAuth, eventController.updateEvent);
   router.delete('/:eventID', attachUser, isAuth, eventController.deleteEvent);
 
+  router.put('/:eventID/location', attachUser, isAuth, eventController.updateEventLocation);
+
   return router;
 }

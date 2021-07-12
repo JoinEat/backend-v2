@@ -11,6 +11,7 @@ module.exports = {
   getEventById,
   createEvent,
   updateEvent,
+  updateEventLocation,
   deleteEvent,
   checkEventIdValidAndExist,
   getInvitations,
@@ -72,6 +73,7 @@ async function createEvent (userId, title) {
   return resEvent;
 }
 
+// TODO: check user permission
 async function updateEvent (eventId, data) {
   await checkEventIdValidAndExist(eventId);
   for (key in data) {
@@ -85,6 +87,28 @@ async function updateEvent (eventId, data) {
       {$set: data},
       {new: true},
   ).exec();
+
+  return updatedEvent;
+}
+
+async function updateEventLocation (eventId, userId, longitude, latitude) {
+  await checkEventIdValidAndExist(eventId);
+  await userService.checkUserIdValidAndExist(userId);
+  await checkPermission(eventId, userId);
+
+  longitude = parseFloat(longitude);
+  latitude = parseFloat(latitude);
+
+  const updatedEvent = await Event.findOneAndUpdate(
+    {_id: eventId},
+    {$set: {
+      location: {
+        type: 'Point',
+        coordinates: [longitude, latitude],
+      }
+    } },
+    {new: true}
+  );
 
   return updatedEvent;
 }

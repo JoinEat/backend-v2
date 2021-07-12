@@ -5,6 +5,7 @@ module.exports = {
   createEvent,
   getEventById,
   updateEvent,
+  updateEventLocation,
   deleteEvent,
   getMembers,
   getInvitations,
@@ -65,6 +66,21 @@ async function updateEvent (req, res, next) {
   }
 
   return res.json({event: newEvent}).status(200);
+}
+
+async function updateEventLocation (req, res, next) {
+  const {longitude, latitude} = req.body;
+  const eventId = req.params.eventID;
+  const userId = req.user._id;
+  
+  let updatedEvent;
+  try {
+    updatedEvent = await eventService.updateEventLocation(eventId, userId, longitude, latitude);
+  } catch (e) {
+    return next(e);
+  }
+
+  return res.json({event: updatedEvent}).status(200);
 }
 
 async function deleteEvent (req, res, next) {
