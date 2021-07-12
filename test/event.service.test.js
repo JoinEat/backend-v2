@@ -100,22 +100,10 @@ describe('Event service', function () {
       const prom = eventService.checkEventIdValidAndExist(newEvent._id);
       expect(prom).to.be.fulfilled;
       const user = await userService.findUserById(null, userId, true);
-      expect(user).to.have.deep.property('currentEvent', newEvent._id);
+      expect(user).to.have.deep.property('currentEvent');
+      expect(user.currentEvent).to.have.lengthOf(1);
     });
 
-    it('When user currentEvent is set, raise ALREADY_IN_OTHER_EVENT', async function () {
-      // Arrange
-      const users = await createUsers(3);
-      const userId = users[0]._id;
-      await eventService.createEvent(userId, 'test_event');
-
-      // Act
-      const prom = eventService.createEvent(userId, 'test_event');
-
-      await expect(prom).to.eventually.be.rejected
-          .and.eventually.be.equal(ALREADY_IN_OTHER_EVENT);
-
-    });
   });
 
   describe('updateEvent', function () {
@@ -232,23 +220,10 @@ describe('Event service', function () {
 
       const user1 = await userService.findUserById(null, users[1]._id, true);
       expect(user1.eventInvitations).to.have.lengthOf(0);
-      expect(user1).to.have.deep.property('currentEvent', eventId);
+      expect(user1).to.have.deep.property('currentEvent');
+      expect(user1.currentEvent).to.have.lengthOf(1);
     });
 
-    it('When user is in other event, throw ALREADY_IN_OTHER_EVENT', async function () {
-      // Arrange
-      const users = await createUsers(2);
-      const event0 = await eventService.createEvent(users[0]._id, 'test event');
-      const event1 = await eventService.createEvent(users[1]._id, 'test event');
-      await eventService.inviteToEvent(event0._id, users[0]._id, users[1]._id);
-
-      // Act
-      const prom = eventService.acceptInvitation(event0._id, users[1]._id);
-
-      // Assert
-      await expect(prom).to.eventually.be.rejected
-          .and.eventually.be.equal(ALREADY_IN_OTHER_EVENT);
-    });
   });
 
   describe('requestToJoin', function() {
@@ -284,23 +259,10 @@ describe('Event service', function () {
       expect(result).to.have.lengthOf(2);
       expect(result[1]).to.have.deep.property('memberId', users[1]._id);
       const user = await userService.findUserById(null, users[1]._id, true);
-      expect(user).to.have.deep.property('currentEvent', eventId);
+      expect(user).to.have.deep.property('currentEvent');
+      expect(user.currentEvent).to.have.lengthOf(1);
     });
 
-    it('When user is in other event, throw ALREADY_IN_OTHER_EVENT', async function () {
-      // Arrange
-      const users = await createUsers(2);
-      const event0 = await eventService.createEvent(users[0]._id, 'test event');
-      const event1 = await eventService.createEvent(users[1]._id, 'test event');
-      await eventService.requestToJoin(event0._id, users[1]._id);
-
-      // Act
-      const prom = eventService.acceptRequest(event0._id, users[0]._id, users[1]._id);
-
-      // Assert
-      await expect(prom).to.eventually.be.rejected
-          .and.eventually.be.equal(ALREADY_IN_OTHER_EVENT);
-    });
   });
 
   describe('leaveEvent', function () {
@@ -317,7 +279,7 @@ describe('Event service', function () {
       const result = await eventService.getMembers(curEvent._id);
       expect(result).to.have.lengthOf(0);
       const user = await userService.findUserById(null, users[0]._id, true);
-      expect(user.currentEvent).to.be.undefined;
+      expect(user.currentEvent).to.have.lengthOf(0);
     });
   });
 });

@@ -68,7 +68,6 @@ async function getEventById (eventId, userId) {
 
 async function createEvent (userId, title) {
   await userService.checkUserIdValidAndExist(userId);
-  await checkNoCurrentEvent(userId);
   
   newEvent = new Event({title, creator: userId});
   resEvent = await newEvent.save();
@@ -78,7 +77,7 @@ async function createEvent (userId, title) {
 
   await User.findOneAndUpdate(
     {_id: userId},
-    {currentEvent: resEvent._id},
+    {$push: {currentEvent: resEvent._id}},
   );
   return resEvent;
 }
@@ -241,7 +240,6 @@ async function inviteToEvent (eventId, userId, targetId) {
 async function acceptInvitation (eventId, userId) {
   await userService.checkUserIdValidAndExist(userId);
   await checkEventIdValidAndExist(eventId);
-  await checkNoCurrentEvent(userId);
   const status = await getMemberStatus(eventId, userId);
   if (status != 'inviting') throw error.EVENT.NOT_INVITING;
 
@@ -249,7 +247,7 @@ async function acceptInvitation (eventId, userId) {
     {_id: userId},
     {
       $pull: {eventInvitations: {eventId: eventId}},
-      currentEvent: eventId,
+      $push: {currentEvent: eventId},
     },
   );
   await updateMemberStatus(eventId, userId, "success");
@@ -276,14 +274,13 @@ async function acceptRequest (eventId, userId, targetId) {
   await userService.checkUserIdValidAndExist(targetId);
   await checkEventIdValidAndExist(eventId);
   await checkPermission(eventId, userId);
-  await checkNoCurrentEvent(targetId);
   const status = await getMemberStatus(eventId, targetId);
   if (status != 'requested') throw error.EVENT.NOT_REQUESTED;
 
   await updateMemberStatus(eventId, targetId, 'success');
   await User.findOneAndUpdate(
     {_id: targetId},
-    {currentEvent: eventId,},
+    {$push: {currentEvent: eventId}},
   );
 }
 
@@ -295,7 +292,7 @@ async function leaveEvent (eventId, userId) {
 
   await User.findOneAndUpdate(
     {_id: userId},
-    {$unset: {currentEvent: eventId}},
+    {$pull: {currentEvent: eventId}},
   );
   await Event.findOneAndUpdate(
     {_id: eventId},

@@ -45,10 +45,12 @@ const userSchema = new mongoose.Schema(
           updateAt: Date,
         },
       ],
-      currentEvent: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Event',
-      },
+      currentEvent: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Event',
+        },
+      ],
       public: {
         type: Boolean,
         default: true,
