@@ -2,6 +2,7 @@ const eventService = require('../services/event');
 
 module.exports = {
   getEvents,
+  getEventsByDistance,
   createEvent,
   getEventById,
   updateEvent,
@@ -21,6 +22,19 @@ async function getEvents (req, res, next) {
   let events;
   try {
     events = await eventService.getEvents();
+  } catch (e) {
+    return next(e);
+  }
+
+  return res.json({events}).status(200);
+}
+
+async function getEventsByDistance (req, res, next) {
+  const {longitude, latitude} = req.query;
+
+  let events;
+  try {
+    events = await eventService.getEventsSortByDistance(longitude, latitude);
   } catch (e) {
     return next(e);
   }

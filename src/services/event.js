@@ -8,6 +8,7 @@ const IMMUTABLE_FIELDS = ['creator', 'createAt'];
 
 module.exports = {
   getEvents,
+  getEventsSortByDistance,
   getEventById,
   createEvent,
   updateEvent,
@@ -28,6 +29,15 @@ async function getEvents () {
   return Event.find({public: true}).exec();
 }
 
+async function getEventsSortByDistance (longitude, latitude) {
+  return Event.find({
+    location: {
+      $near: {
+        $geometry: {type: 'Point', coordinates: [longitude, latitude]},
+      },
+    },
+  })
+}
 
 async function eventIdExist (eventId) {
   let event;

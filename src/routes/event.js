@@ -8,6 +8,8 @@ module.exports = function () {
   router.get('/', eventController.getEvents);
   router.post('/', attachUser, isAuth, eventController.createEvent);
 
+  router.get('/location', eventController.getEventsByDistance);
+
   router.get('/:eventID/invitations', attachUser, isAuth, eventController.getInvitations);
   router.post('/:eventID/invitations', attachUser, isAuth, eventController.sendInvitation);
   router.put('/:eventID/invitations', attachUser, isAuth, eventController.acceptInvitation);
