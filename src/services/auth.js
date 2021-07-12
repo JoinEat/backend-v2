@@ -80,13 +80,19 @@ async function sendVerifyMail (userId) {
 
   verifyCode = await generateCode(userId);
 
-  return mailService.sendTextToEmailAddress(
+  await mailService.sendTextToEmailAddress(
       user.email,
       'Verify Email Address for When2Eat',
       `Hi ${user.name},\n\n`+
       'We just need to verify your email address before you can access When2Eat.\n\n' +
       `Verify your email address with code ${verifyCode.code}\n\n` +
       'Thanks! \n\n The When2Eat team'
+  );
+
+  await User.findOneAndUpdate(
+    {_id: userId},
+    {$set: {verifyStatus: 'pending'}},
+    {new: true},
   );
 }
 
