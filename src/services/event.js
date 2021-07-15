@@ -68,6 +68,7 @@ async function getEventById (eventId, userId) {
 
 async function createEvent (userId, title) {
   await userService.checkUserIdValidAndExist(userId);
+  if (!title) throw error.EVENT.TITLE_REQUIRED;
   
   newEvent = new Event({title, creator: userId});
   resEvent = await newEvent.save();

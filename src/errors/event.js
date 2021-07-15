@@ -43,4 +43,8 @@ module.exports = {
     statusCode: 400,
     message: 'ALREADY_IN_OTHER_EVENT',
   },
+  TITLE_REQUIRED: {
+    statusCode: 400,
+    message: 'TITLE_REQUIRED',
+  },
 };
