@@ -82,7 +82,7 @@ async function checkUserIdValidAndExist (userId) {
 
 async function findUserById (userId, targetId, permission) {
   await checkUserIdValidAndExist(targetId);
-  let user = await User.findById(targetId).select('-password');
+  let user = await User.findById(targetId).populate('currentEvent', 'title').populate('eventInvitations.eventId', 'title').select('-password');
   user = user.toObject();
 
   if (!permission && targetId != userId && isFriendOf(userId, targetId) && !user.public) {
