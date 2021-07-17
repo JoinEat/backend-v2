@@ -198,7 +198,6 @@ describe('Event service', function () {
 
       const user1 = await userService.findUserById(null, users[1]._id, true);
       expect(user1.eventInvitations).to.have.lengthOf(1);
-      expect(user1.eventInvitations[0]).to.have.deep.property('eventId', eventId);
     });
   });
 
