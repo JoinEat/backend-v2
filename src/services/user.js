@@ -7,6 +7,7 @@ const SEARCH_FIELDS = ['email', 'name', 'realName', 'nickName', 'school', 'gende
 const PUBLIC_FIELDS = ['avatar', 'name', '_id', 'nickName', 'public'];
 const PRIVATE_FIELDS = ['email', 'password', 'verifyStatus'];
 const PROTECTED_FIELDS = ['realName', 'school', 'gender', 'department', 'friends', 'eventInvitation', 'currentEvent'];
+const PRIVATE_SELECT = PRIVATE_FIELDS.map(x => '-' + x).join(' ');
 
 module.exports = {
   findUsers,
@@ -17,6 +18,12 @@ module.exports = {
   SEARCH_FIELDS,
 }
 
+/**
+ * Check if users are success friend
+ * @param userId 
+ * @param targetId 
+ * @returns Boolean
+ */
 async function isFriendOf (userId, targetId) {
   if (!userId || !targetId) return false;
   const cur = await User.findById(userId, {
@@ -25,6 +32,15 @@ async function isFriendOf (userId, targetId) {
   return (cur.friends.length && cur.friends[0].state == 'success');
 }
 
+/**
+ * Search user with filters (the projected fields are determined by public field)
+ * @param filter 
+ * @param excludeFriendOfUser
+ * @param nickNameSubstr 
+ * @param limit 
+ * @param nextKey 
+ * @returns an array of matched user
+ */
 async function findUsers (filter, excludeFriendOfUser, nickNameSubstr, limit, nextKey) {
   for (key in filter) {
     if (!SEARCH_FIELDS.includes(key)) throw error.USER.FIELD_NOT_SEARCHABLE;
@@ -67,6 +83,11 @@ async function findUsers (filter, excludeFriendOfUser, nickNameSubstr, limit, ne
   return query;
 }
 
+/**
+ * Check if userId exist
+ * @param userId 
+ * @returns Boolean
+ */
 async function userIdExist (userId) {
   let user;
   try {
@@ -78,16 +99,31 @@ async function userIdExist (userId) {
   return !!user;
 }
 
+/**
+ * Throw error if userId not valid or not exist
+ * @param userId 
+ */
 async function checkUserIdValidAndExist (userId) {
   if (!await userIdExist(userId)) throw error.USER.USER_NOT_FOUND;
 }
 
+/**
+ * Get targetId info with userId's permission.
+ * If permission is true, treat as super user.
+ * @param userId 
+ * @param targetId 
+ * @param permission 
+ * @returns The found user with its visible fields.
+ */
 async function findUserById (userId, targetId, permission) {
   await checkUserIdValidAndExist(targetId);
-  let user = await User.findById(targetId).populate('currentEvent', 'title').populate('eventInvitations.eventId', 'title').select('-password');
+  let user = await User.findById(targetId)
+      .populate('currentEvent', 'title')
+      .populate('eventInvitations.eventId', 'title')
+      .select(PRIVATE_SELECT);
   user = user.toObject();
 
-  if (!permission && targetId != userId && isFriendOf(userId, targetId) && !user.public) {
+  if (!permission && targetId != userId && ! await isFriendOf(userId, targetId) && !user.public) {
     user = Object.keys(user)
       .filter(key => PUBLIC_FIELDS.includes(key))
       .reduce((obj, key) => {
@@ -98,6 +134,12 @@ async function findUserById (userId, targetId, permission) {
   return user;
 }
 
+/**
+ * Update userId's data
+ * @param userId 
+ * @param data 
+ * @returns the new user's data
+ */
 async function updateUserById (userId, data) {
   for (key in data) {
     if (!MUTABLE_FIELDS.includes(key)) {

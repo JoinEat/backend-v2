@@ -5,6 +5,7 @@ const friendService = require('../src/services/friend');
 const authService = require('../src/services/auth');
 const { USERID_NOT_VALID, USER_NOT_FOUND } = require('../src/errors/user');
 const { createUsers } = require('./user.helper');
+const error = require('../src/errors')
 
 chai.use(chaiAsPromised);
 
@@ -62,7 +63,7 @@ describe('User service', function() {
     });
 
     it('When userId not exists, throw USER_NOT_FOUND', async function () {
-      //Arrange
+      // Arrange
       var userId = require('mongoose').Types.ObjectId();
 
       // Act
@@ -74,7 +75,7 @@ describe('User service', function() {
     });
 
     it('When userId not valid, throw USERID_NOT_VALID', async function () {
-      //Arrange
+      // Arrange
       var userId = "test";
 
       // Act
@@ -84,6 +85,51 @@ describe('User service', function() {
       await expect(result).to.eventually.be.rejected
           .and.eventually.be.equal(USERID_NOT_VALID);
     });
+
+    it('When targetId is friend of userId and private, show all field except private field', async function () {
+      // Arrange
+      users = await createUsers(3);
+      await friendService.requestFriend(users[0]._id, users[1]._id);
+      await friendService.acceptFriendRequest(users[1]._id, users[0]._id);
+      await userService.updateUserById(users[1]._id, {public: false});
+      
+      // Act
+      const result = await userService.findUserById(users[0]._id, users[1]._id);
+
+      // Assert
+      expect(result).to.have.deep.property('_id', users[1]._id);
+      expect(result).to.have.property('friends');
+      expect(result).not.to.have.property('email');
+    });
+
+    it('When targetId is public, show all field except private field', async function () {
+      // Arrange
+      users = await createUsers(3);
+      
+      // Act
+      const result = await userService.findUserById(users[0]._id, users[1]._id);
+
+      // Assert
+      expect(result).to.have.deep.property('_id', users[1]._id);
+      expect(result).to.have.property('friends');
+      expect(result).not.to.have.property('email');
+    });
+
+    it('When targetId is not a friend of userId and private, show all field except private field', async function () {
+      // Arrange
+      users = await createUsers(3);
+      await userService.updateUserById(users[1]._id, {public: false});
+      
+      // Act
+      const result = await userService.findUserById(users[0]._id, users[1]._id);
+
+      // Assert
+      expect(result).to.have.deep.property('_id', users[1]._id);
+      expect(result).to.have.property('name');
+      expect(result).not.to.have.property('friends');
+      expect(result).not.to.have.property('email');
+    });
+
   });
 
   describe('updateUserById', function() {
@@ -94,18 +140,33 @@ describe('User service', function() {
       await userService.updateUserById(userId, {school: 'NTU'});
 
       // Act
-      const result = await userService.updateUserById(userId, {school: 'NTHU', gender: 'Meow'});
+      const result = await userService.updateUserById(userId, {school: 'NTHU', gender: 'Meow', public: false});
 
       // Assert
       const data = {
         _id: userId,
         school: 'NTHU',
         gender: 'Meow',
+        public: false,
       };
       expect(result).to.deep.include(data);
     });
-    it('When userId exists and fields are immutable, throw immutable error');
-    it('When userId exists and value has wrong type, throw value type error');;
+
+    it('When userId exists and fields are immutable, throw immutable error', async function () {
+      // Arrange
+      const user = await authService.signUp('test1@gmail.com', 'weakpsswd', 'test1');
+      const userId = user._id;
+      await userService.updateUserById(userId, {school: 'NTU'});
+
+      // Act
+      const result = userService.updateUserById(userId, {school: 'NTHU', name: 'new name', gender: 'Meow', public: false});
+
+      // Assert
+      await expect(result).to.eventually.be.rejected
+          .and.eventually.be.equal(error.USER.FIELD_NOT_MUTABLE);
+    });
+
+    it('When userId exists and value has wrong type, throw value type error');
 
 
     it('When userId not exists, throw USER_NOT_FOUND', async function () {
@@ -155,6 +216,10 @@ describe('User service', function() {
 
       // Assert
       expect(result).to.have.lengthOf(2);
+      for (user of result) {
+        expect(user).to.have.deep.property('gender', 'male');
+        expect(user).to.have.deep.property('school', 'NTHU');
+      }
     });
 
     it('When excludeFriendOfUser provided, exclude the users of its friend', async function() {
@@ -163,7 +228,7 @@ describe('User service', function() {
       await friendService.requestFriend(users[0]._id, users[1]._id);
 
       // Act
-      result = await userService.findUsers({}, users[1]._id);
+      result = await userService.findUsers({}, String(users[1]._id));
 
       // Assert
       expect(result).to.have.lengthOf(2);
@@ -200,6 +265,17 @@ describe('User service', function() {
       // Assert
       expect(result).to.have.lengthOf(6);
       expect(result[0]).to.have.deep.property('_id', users[4]._id);
+    });
+
+    it('When limit provided, return result with legth less than limit', async function () {
+      // Arrange
+      users = await createUsers(10);
+
+      // Act
+      result = await userService.findUsers({}, undefined, undefined, 3);
+
+      // Assert
+      expect(result).to.have.lengthOf(3);
     });
   });
 });
