@@ -26,10 +26,20 @@ module.exports = {
   leaveEvent,
 }
 
+/**
+ * get all events
+ * @returns all the public events
+ */
 async function getEvents () {
   return Event.find({public: true}).exec();
 }
 
+/**
+ * Sort Event by Distance
+ * @param longitude 
+ * @param latitude 
+ * @returns list of events
+ */
 async function getEventsSortByDistance (longitude, latitude) {
   return Event.find({
     location: {
@@ -40,6 +50,11 @@ async function getEventsSortByDistance (longitude, latitude) {
   })
 }
 
+/**
+ * Check if eventId exist
+ * @param eventId 
+ * @returns Boolean
+ */
 async function eventIdExist (eventId) {
   let event;
   try {
@@ -51,22 +66,38 @@ async function eventIdExist (eventId) {
   return !!event;
 }
 
+/**
+ * Throw error if eventId not valid or not exist
+ * @param eventId 
+ */
 async function checkEventIdValidAndExist (eventId) {
   if (!await eventIdExist(eventId)) throw error.EVENT.EVENT_NOT_FOUND;
 }
 
+/**
+ * Get event if it is public or the user has permission
+ * @param eventId 
+ * @param userId 
+ * @returns the event with detail
+ */
 async function getEventById (eventId, userId) {
   await checkEventIdValidAndExist(eventId);
 
   result = await Event.findById(eventId);
   status = userId ? await getMemberStatus(eventId, userId) : 'none';
   if (!result.public && status != 'success') {
-    throw error.Event.NO_PERMISSION;
+    throw error.EVENT.NO_PERMISSION;
   }
 
   return result;
 }
 
+/**
+ * Create an event with title by userId
+ * @param userId 
+ * @param title 
+ * @returns new event
+ */
 async function createEvent (userId, title) {
   await userService.checkUserIdValidAndExist(userId);
   if (!title) throw error.EVENT.TITLE_REQUIRED;
@@ -84,9 +115,17 @@ async function createEvent (userId, title) {
   return resEvent;
 }
 
-// TODO: check user permission
-async function updateEvent (eventId, data) {
+/**
+ * Update eventId if userId have permission
+ * @param eventId 
+ * @param userId 
+ * @param data 
+ * @returns updated event
+ */
+async function updateEvent (eventId, userId, data) {
   await checkEventIdValidAndExist(eventId);
+  await userService.checkUserIdValidAndExist(userId);
+  await checkPermission(eventId, userId);
   for (key in data) {
     if (!MUTABLE_FIELDS.includes(key)) {
       throw error.EVENT.FIELD_NOT_MUTABLE;
@@ -102,6 +141,14 @@ async function updateEvent (eventId, data) {
   return updatedEvent;
 }
 
+/**
+ * Update eventId location if userId have permission
+ * @param eventId 
+ * @param userId 
+ * @param longitude 
+ * @param latitude 
+ * @returns updated event
+ */
 async function updateEventLocation (eventId, userId, longitude, latitude) {
   await checkEventIdValidAndExist(eventId);
   await userService.checkUserIdValidAndExist(userId);
@@ -109,23 +156,38 @@ async function updateEventLocation (eventId, userId, longitude, latitude) {
 
   longitude = parseFloat(longitude);
   latitude = parseFloat(latitude);
+  if (!longitude || !latitude) throw error.EVENT.GEO_LOCATION_NOT_VALID;
 
-  const updatedEvent = await Event.findOneAndUpdate(
-    {_id: eventId},
-    {$set: {
-      location: {
-        type: 'Point',
-        coordinates: [longitude, latitude],
-      }
-    } },
-    {new: true}
-  );
-
+  let updatedEvent;
+  try {
+    updatedEvent = await Event.findOneAndUpdate(
+      {_id: eventId},
+      {$set: {
+        location: {
+          type: 'Point',
+          coordinates: [longitude, latitude],
+        }
+      } },
+      {new: true}
+    );
+  } catch (e) {
+    if (e.code == 16755) throw error.EVENT.GEO_LOCATION_NOT_VALID;
+    throw e;
+  }
+  
   return updatedEvent;
 }
 
-async function deleteEvent (eventId) {
+/**
+ * Delete event and remove all members
+ * @param eventId 
+ * @param userId 
+ */
+async function deleteEvent (eventId, userId) {
   await checkEventIdValidAndExist(eventId);
+  await userService.checkUserIdValidAndExist(userId);
+  await checkPermission(eventId, userId);
+  // TODO: remove all member
 
   await Event.findOneAndDelete({_id: eventId}).exec();
 }

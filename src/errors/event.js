@@ -47,4 +47,8 @@ module.exports = {
     statusCode: 400,
     message: 'TITLE_REQUIRED',
   },
+  GEO_LOCATION_NOT_VALID: {
+    statusCode: 400,
+    messade: 'GEO_LOCATION_NOT_VALID',
+  },
 };
