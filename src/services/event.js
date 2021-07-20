@@ -5,6 +5,7 @@ const User = require('../models/users');
 const { now } = require('mongoose');
 
 const IMMUTABLE_FIELDS = ['creator', 'createAt'];
+const MUTABLE_FIELDS = ['title', 'startAt', 'position', 'public'];
 
 module.exports = {
   getEvents,
@@ -87,7 +88,7 @@ async function createEvent (userId, title) {
 async function updateEvent (eventId, data) {
   await checkEventIdValidAndExist(eventId);
   for (key in data) {
-    if (IMMUTABLE_FIELDS.includes(key)) {
+    if (!MUTABLE_FIELDS.includes(key)) {
       throw error.EVENT.FIELD_NOT_MUTABLE;
     }
   }
