@@ -1,5 +1,6 @@
 const User = require('../models/users');
 const error = require('../errors');
+const mongoose = require('mongoose');
 
 const MUTABLE_FIELDS = ['realName', 'nickName', 'school', 'gender', 'department', 'avatar', 'public'];
 const SEARCH_FIELDS = ['email', 'name', 'realName', 'nickName', 'school', 'gender', 'department'];
@@ -29,7 +30,8 @@ async function findUsers (filter, excludeFriendOfUser, nickNameSubstr, limit, ne
     if (!SEARCH_FIELDS.includes(key)) throw error.USER.FIELD_NOT_SEARCHABLE;
   }
   if (excludeFriendOfUser) {
-    filter['friends.friendId'] = {$ne: excludeFriendOfUser};
+    const excludeId = mongoose.Types.ObjectId(excludeFriendOfUser);
+    filter['friends.friendId'] = {$ne: excludeId};
   }
   if (nickNameSubstr) {
     filter['nickName'] = {$regex: nickNameSubstr};
