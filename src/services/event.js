@@ -85,7 +85,8 @@ async function getEventById (eventId, userId) {
 
   result = await Event.findById(eventId);
   status = userId ? await getMemberStatus(eventId, userId) : 'none';
-  if (!result.public && status != 'success') {
+
+  if (!result.public && status == 'none') {
     throw error.EVENT.NO_PERMISSION;
   }
 
