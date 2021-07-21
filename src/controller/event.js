@@ -74,7 +74,7 @@ async function updateEvent (req, res, next) {
 
   let newEvent;
   try {
-    newEvent = await eventService.updateEvent(eventId, data);
+    newEvent = await eventService.updateEvent(eventId, req.user._id, data);
   } catch (e) {
     return next(e);
   }
