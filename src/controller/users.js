@@ -9,6 +9,8 @@ module.exports = {
   updateUser,
   sendVerifyMail,
   verifyWithCode,
+  getMyCurrentEvents,
+  getMyInvitations,
 };
 
 async function listUsers (req, res) {
@@ -109,4 +111,28 @@ async function verifyWithCode (req, res, next) {
   }
 
   return res.json({user}).status(200);
+}
+
+async function getMyCurrentEvents (req, res, next) {
+  const userId = req.user._id;
+  let events;
+  try {
+    events = await userService.getCurrentEvents(userId);
+  } catch (e) {
+    return next(e);
+  }
+
+  return res.json({events}).status(200);
+}
+
+async function getMyInvitations (req, res, next) {
+  const userId = req.user._id;
+  let events;
+  try {
+    events = await userService.getEventInvitations(userId);
+  } catch (e) {
+    return next(e);
+  }
+
+  return res.json({events}).status(200);
 }

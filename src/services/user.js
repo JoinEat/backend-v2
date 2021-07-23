@@ -15,6 +15,8 @@ module.exports = {
   findUserById,
   updateUserById,
   checkUserIdValidAndExist,
+  getCurrentEvents,
+  getEventInvitations,
   SEARCH_FIELDS,
 }
 
@@ -134,11 +136,18 @@ async function findUserById (userId, targetId, permission) {
   return user;
 }
 
-async function getCurrentEvent (userId) {
+async function getCurrentEvents (userId) {
   await checkUserIdValidAndExist(userId);
   let user = await User.findById(userId)
       .populate('currentEvent')
   return user.currentEvent;
+}
+
+async function getEventInvitations (userId) {
+  await checkUserIdValidAndExist(userId);
+  let user = await User.findById(userId)
+      .populate('eventInvitations.eventId');
+  return user.eventInvitations;
 }
 
 /**
