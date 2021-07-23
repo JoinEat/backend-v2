@@ -134,6 +134,13 @@ async function findUserById (userId, targetId, permission) {
   return user;
 }
 
+async function getCurrentEvent (userId) {
+  await checkUserIdValidAndExist(userId);
+  let user = await User.findById(userId)
+      .populate('currentEvent')
+  return user.currentEvent;
+}
+
 /**
  * Update userId's data
  * @param userId 
