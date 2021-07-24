@@ -260,7 +260,8 @@ async function checkNoCurrentEvent (userId) {
 }
 
 async function getMemberWithStatus (eventId, status) {
-  const currentEvent = await Event.findById(eventId);
+  const currentEvent = await Event.findById(eventId).populate('members.memberId');
+  console.log(currentEvent);
   result = []
   for (member of currentEvent.members) {
     if (member.state == status) result.push(member);
