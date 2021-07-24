@@ -264,8 +264,9 @@ describe('Event service', function () {
       const result = await eventService.getInvitations(curEvent._id);
 
       // Assert
+      console.log(result);
       expect(result).to.have.lengthOf(1);
-      expect(result[0]).to.have.deep.property('memberId', users[1]._id);
+      expect(result[0].memberId).to.have.deep.property('_id', users[1]._id);
     });
   });
 
@@ -282,7 +283,7 @@ describe('Event service', function () {
 
       // Assert
       expect(result).to.have.lengthOf(1);
-      expect(result[0]).to.have.deep.property('memberId', users[2]._id);
+      expect(result[0].memberId).to.have.deep.property('_id', users[2]._id);
     });
   });
 
@@ -297,7 +298,7 @@ describe('Event service', function () {
 
       // Assert
       expect(result).to.have.lengthOf(1);
-      expect(result[0]).to.have.deep.property('memberId', users[0]._id);
+      expect(result[0].memberId).to.have.deep.property('_id', users[0]._id);
     });
   });
 
@@ -314,7 +315,7 @@ describe('Event service', function () {
       // Assert
       const result = await eventService.getInvitations(curEvent._id);
       expect(result).to.have.lengthOf(1);
-      expect(result[0]).to.have.deep.property('memberId', users[1]._id);
+      expect(result[0].memberId).to.have.deep.property('_id', users[1]._id);
 
       const user1 = await userService.findUserById(null, users[1]._id, true);
       expect(user1.eventInvitations).to.have.lengthOf(1);
@@ -335,7 +336,7 @@ describe('Event service', function () {
       // Assert
       const result = await eventService.getMembers(curEvent._id);
       expect(result).to.have.lengthOf(2);
-      expect(result[1]).to.have.deep.property('memberId', users[1]._id);
+      expect(result[1].memberId).to.have.deep.property('_id', users[1]._id);
 
       const user1 = await userService.findUserById(null, users[1]._id, true);
       expect(user1.eventInvitations).to.have.lengthOf(0);
@@ -358,7 +359,7 @@ describe('Event service', function () {
       // Assert
       const result = await eventService.getRequests(curEvent._id);
       expect(result).to.have.lengthOf(1);
-      expect(result[0]).to.have.deep.property('memberId', users[1]._id);
+      expect(result[0].memberId).to.have.deep.property('_id', users[1]._id);
     });
   });
 
@@ -376,7 +377,7 @@ describe('Event service', function () {
       // Assert
       const result = await eventService.getMembers(curEvent._id);
       expect(result).to.have.lengthOf(2);
-      expect(result[1]).to.have.deep.property('memberId', users[1]._id);
+      expect(result[1].memberId).to.have.deep.property('_id', users[1]._id);
       const user = await userService.findUserById(null, users[1]._id, true);
       expect(user).to.have.deep.property('currentEvent');
       expect(user.currentEvent).to.have.lengthOf(1);
