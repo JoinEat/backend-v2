@@ -28,7 +28,7 @@ describe('Event service', function () {
       await createEvents(3);
       
       // Act
-      events = await eventService.getEvents();
+      events = await eventService.getEvents({});
 
       // Assert
       expect(events).to.have.lengthOf(3);
@@ -41,7 +41,7 @@ describe('Event service', function () {
       await eventService.updateEvent(squad._id, users[0]._id, {public: 'false'});
 
       // Act
-      squads = await eventService.getEvents();
+      squads = await eventService.getEvents({});
 
       // Assert
       expect(squads).to.have.lengthOf(0)
