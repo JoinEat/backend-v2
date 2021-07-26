@@ -99,7 +99,7 @@ async function getEventById (eventId, userId) {
  * @param title 
  * @returns new event
  */
-async function createEvent (userId, title) {
+async function createEvent (userId, title, data) {
   await userService.checkUserIdValidAndExist(userId);
   if (!title) throw error.EVENT.TITLE_REQUIRED;
   
@@ -113,6 +113,8 @@ async function createEvent (userId, title) {
     {_id: userId},
     {$push: {currentEvent: resEvent._id}},
   );
+
+  if (data) resEvent = await updateEvent(resEvent._id, userId, data)
   return resEvent;
 }
 

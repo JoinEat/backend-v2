@@ -46,9 +46,12 @@ async function createEvent (req, res, next) {
   userId = req.user._id;
   title = req.body.title;
 
+  data = req.body;
+  delete data.title;
+
   let newEvent;
   try {
-    newEvent = await eventService.createEvent(userId, title);
+    newEvent = await eventService.createEvent(userId, title, data);
   } catch (e) {
     return next(e);
   }
