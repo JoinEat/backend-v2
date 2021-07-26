@@ -1,6 +1,7 @@
 const error = require('../errors');
 const Event = require('../models/event');
 const userService = require('./user');
+const friendService = require('./friend');
 const User = require('../models/users');
 const { now } = require('mongoose');
 
@@ -30,8 +31,20 @@ module.exports = {
  * get all events
  * @returns all the public events
  */
-async function getEvents () {
-  return Event.find({public: true}).exec();
+async function getEvents (query, userId) {
+  filter = {public: true};
+
+  if (query.friendCreator == 'true') {
+    friends = await friendService.findFriends(userId, 'success');
+    friendsId = friends.map(user => user.friendId._id);
+    filter.creator = {$in: friendsId};
+  }
+
+  if (query.position) {
+    filter.position = query.position;
+  }
+
+  return Event.find(filter).exec();
 }
 
 /**

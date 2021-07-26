@@ -20,8 +20,9 @@ module.exports = {
 
 async function getEvents (req, res, next) {
   let events;
+
   try {
-    events = await eventService.getEvents();
+    events = await eventService.getEvents(req.query, req.user && req.user._id);
   } catch (e) {
     return next(e);
   }

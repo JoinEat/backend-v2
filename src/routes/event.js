@@ -5,7 +5,7 @@ const {isAuth, attachUser} = require('../middleware');
 module.exports = function () {
   const router = new Router();
 
-  router.get('/', eventController.getEvents);
+  router.get('/', attachUser, eventController.getEvents);
   router.post('/', attachUser, isAuth, eventController.createEvent);
 
   router.get('/location', eventController.getEventsByDistance);
