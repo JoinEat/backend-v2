@@ -127,6 +127,14 @@ async function updateEvent (eventId, userId, data) {
   await checkEventIdValidAndExist(eventId);
   await userService.checkUserIdValidAndExist(userId);
   await checkPermission(eventId, userId);
+
+  if (data.longitude || data.latitude) {
+    if (!(data.longitude && data.latitude)) throw error.EVENT.LONGITUDE_OR_LATITUDE_MISSING;
+    await updateEventLocation(eventId, userId, data.longitude, data.latitude);
+    delete data.longitude;
+    delete data.latitude;
+  }
+
   for (key in data) {
     if (!MUTABLE_FIELDS.includes(key)) {
       throw error.EVENT.FIELD_NOT_MUTABLE;
@@ -261,7 +269,6 @@ async function checkNoCurrentEvent (userId) {
 
 async function getMemberWithStatus (eventId, status) {
   const currentEvent = await Event.findById(eventId).populate('members.memberId');
-  console.log(currentEvent);
   result = []
   for (member of currentEvent.members) {
     if (member.state == status) result.push(member);

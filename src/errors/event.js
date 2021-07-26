@@ -49,6 +49,10 @@ module.exports = {
   },
   GEO_LOCATION_NOT_VALID: {
     statusCode: 400,
-    messade: 'GEO_LOCATION_NOT_VALID',
+    message: 'GEO_LOCATION_NOT_VALID',
   },
+  LONGITUDE_OR_LATITUDE_MISSING: {
+    statusCode: 400,
+    message: 'LONGITUDE_OR_LATITUDE_MISSING',
+  }
 };

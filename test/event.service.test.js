@@ -264,7 +264,6 @@ describe('Event service', function () {
       const result = await eventService.getInvitations(curEvent._id);
 
       // Assert
-      console.log(result);
       expect(result).to.have.lengthOf(1);
       expect(result[0].memberId).to.have.deep.property('_id', users[1]._id);
     });

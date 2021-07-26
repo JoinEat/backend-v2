@@ -146,7 +146,6 @@ async function sendInvitation (req, res, next) {
   const eventId = req.params.eventID;
   const targetId = req.body.targetID;
   const userId = req.user._id;
-  console.log(targetId, userId);
   try {
     await eventService.inviteToEvent(eventId, userId, targetId);
   } catch(e) {
