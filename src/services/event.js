@@ -4,6 +4,7 @@ const userService = require('./user');
 const friendService = require('./friend');
 const User = require('../models/users');
 const { now } = require('mongoose');
+const {PUBLIC_FIELDS} = require('./user');
 
 const IMMUTABLE_FIELDS = ['creator', 'createAt'];
 const MUTABLE_FIELDS = ['title', 'startAt', 'position', 'public'];
@@ -283,7 +284,8 @@ async function checkNoCurrentEvent (userId) {
 }
 
 async function getMemberWithStatus (eventId, status) {
-  const currentEvent = await Event.findById(eventId).populate('members.memberId');
+  const public_select = PUBLIC_FIELDS.join(' ');
+  const currentEvent = await Event.findById(eventId).populate('members.memberId', public_select);
   result = []
   for (member of currentEvent.members) {
     if (member.state == status) result.push(member);

@@ -18,6 +18,7 @@ module.exports = {
   getCurrentEvents,
   getEventInvitations,
   SEARCH_FIELDS,
+  PUBLIC_FIELDS,
 }
 
 /**
