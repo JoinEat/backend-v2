@@ -18,6 +18,9 @@ async function listUsers (req, res) {
   if (req.query.excludeFriends == 'true' && req.user) {
     excludeFriends = req.user._id;
   }
+  let exclude = {};
+  if (req.query.excludeMember) exclude.member = req.query.excludeMember;
+  if (req.query.excludeInvitation) exclude.invitation = req.query.excludeInvitation;
 
   query = req.query || {};
   filter = Object.keys(query)
@@ -33,7 +36,7 @@ async function listUsers (req, res) {
   const limit = parseInt(req.query.limit);
   const nextKey = req.query.nextKey;
 
-  const users = await userService.findUsers(filter, excludeFriends, nickNameSubstr, limit, nextKey);
+  const users = await userService.findUsers(filter, excludeFriends, nickNameSubstr, limit, nextKey, exclude);
   return res.json({users}).status(200);
 }
 

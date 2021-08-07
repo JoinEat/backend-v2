@@ -44,7 +44,7 @@ async function isFriendOf (userId, targetId) {
  * @param nextKey 
  * @returns an array of matched user
  */
-async function findUsers (filter, excludeFriendOfUser, nickNameSubstr, limit, nextKey) {
+async function findUsers (filter, excludeFriendOfUser, nickNameSubstr, limit, nextKey, exclude) {
   for (key in filter) {
     if (!SEARCH_FIELDS.includes(key)) throw error.USER.FIELD_NOT_SEARCHABLE;
   }
@@ -55,6 +55,18 @@ async function findUsers (filter, excludeFriendOfUser, nickNameSubstr, limit, ne
   if (nickNameSubstr) {
     filter['nickName'] = {$regex: nickNameSubstr};
   }
+
+  if (exclude) {
+    if (exclude.member) {
+      const eventId = mongoose.Types.ObjectId(exclude.member);
+      filter['currentEvent'] = {$ne: eventId};
+    }
+    if (exclude.invitation) {
+      const eventId = mongoose.Types.ObjectId(exclude.invitation);
+      filter['eventInvitations.eventId'] = {$ne: eventId};
+    }
+  }
+  console.log(filter);
 
   // pagnination
   if (!limit || limit > 100) limit = 100;
