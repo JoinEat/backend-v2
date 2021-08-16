@@ -13,30 +13,27 @@ module.exports = {
   getMyInvitations,
 };
 
-async function listUsers (req, res) {
-  let excludeFriends = undefined;
-  if (req.query.excludeFriends == 'true' && req.user) {
-    excludeFriends = req.user._id;
-  }
-  let exclude = {};
-  if (req.query.excludeMember) exclude.member = req.query.excludeMember;
-  if (req.query.excludeInvitation) exclude.invitation = req.query.excludeInvitation;
-
-  query = req.query || {};
-  filter = Object.keys(query)
-      .filter(key => userService.SEARCH_FIELDS.includes(key))
+function filterObjectKeysWithArray (from, fields) {
+  return Object.keys(from)
+      .filter(key => fields.includes(key))
       .reduce((obj, key) => {
-          obj[key] = query[key];
-          return obj;
+        obj[key] = from[key];
+        return obj;
       }, {});
+}
 
-  let nickNameSubstr = req.query.nickNameContain;
+async function listUsers (req, res) {
+  const query = req.query || {};
 
-  // pagnination
-  const limit = parseInt(req.query.limit);
-  const nextKey = req.query.nextKey;
+  const filter = filterObjectKeysWithArray(query, userService.SEARCH_FIELDS);
+  const exclude = filterObjectKeysWithArray(query, userService.EXCLUDE_FIELDS);
+  if (exclude.friendOf === 'true' && req.user) exclude.friendOf = req.user._id;
 
-  const users = await userService.findUsers(filter, excludeFriends, nickNameSubstr, limit, nextKey, exclude);
+  // pagination
+  const limit = parseInt(query.limit);
+  const nextKey = query.nextKey;
+
+  const users = await userService.findUsers(filter, exclude, limit, nextKey);
   return res.json({users}).status(200);
 }
 

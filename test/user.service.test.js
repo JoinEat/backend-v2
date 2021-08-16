@@ -197,7 +197,7 @@ describe('User service', function() {
   describe('findUsers', function(){
     it('When filter is provided and valid, return filtered users', async function () {
       // Arrange
-      users = await createUsers(3);
+      const users = await createUsers(3);
       await userService.updateUserById(users[0]._id, {
         gender: 'male',
         school: 'NTHU',
@@ -212,11 +212,14 @@ describe('User service', function() {
       });
 
       // Act
-      result = await userService.findUsers({school: 'NTHU', gender: 'male'});
+      const result = await userService.findUsers(
+          {school: 'NTHU', gender: 'male'},
+          {}
+      );
 
       // Assert
       expect(result).to.have.lengthOf(2);
-      for (user of result) {
+      for (const user of result) {
         expect(user).to.have.deep.property('gender', 'male');
         expect(user).to.have.deep.property('school', 'NTHU');
       }
@@ -224,11 +227,14 @@ describe('User service', function() {
 
     it('When excludeFriendOfUser provided, exclude the users of its friend', async function() {
       // Arrange
-      users = await createUsers(3);
+      const users = await createUsers(3);
       await friendService.requestFriend(users[0]._id, users[1]._id);
 
       // Act
-      result = await userService.findUsers({}, String(users[1]._id));
+      const result = await userService.findUsers(
+          {},
+          {notFriendOf: String(users[1]._id)}
+      );
 
       // Assert
       expect(result).to.have.lengthOf(2);
@@ -236,7 +242,7 @@ describe('User service', function() {
 
     it('When nickNameSubstr provided, return filtered users', async function () {
       // Arrange
-      users = await createUsers(3);
+      const users = await createUsers(3);
       await userService.updateUserById(users[0]._id, {
         nickName: 'xdoggy'
       });
@@ -248,7 +254,10 @@ describe('User service', function() {
       });
 
       // Act
-      result = await userService.findUsers({}, undefined, 'dog');
+      const result = await userService.findUsers(
+          {nickNameContain: 'dog'},
+          {}
+      );
 
       // Assert
       expect(result).to.have.lengthOf(1);
@@ -257,10 +266,10 @@ describe('User service', function() {
 
     it('When nextKey provided, return result after nextKey', async function () {
       // Arrange
-      users = await createUsers(10);
+      const users = await createUsers(10);
 
       // Act
-      result = await userService.findUsers({}, undefined, undefined, undefined, users[3]._id);
+      const result = await userService.findUsers({}, {}, undefined, users[3]._id);
 
       // Assert
       expect(result).to.have.lengthOf(6);
@@ -269,10 +278,10 @@ describe('User service', function() {
 
     it('When limit provided, return result with legth less than limit', async function () {
       // Arrange
-      users = await createUsers(10);
+      const users = await createUsers(10);
 
       // Act
-      result = await userService.findUsers({}, undefined, undefined, 3);
+      const result = await userService.findUsers({}, {}, 3);
 
       // Assert
       expect(result).to.have.lengthOf(3);
