@@ -16,6 +16,8 @@ module.exports = {
   acceptInvitation,
   acceptRequest,
   leaveEvent,
+  getMessages,
+  createMessage,
 };
 
 async function getEvents (req, res, next) {
@@ -203,4 +205,31 @@ async function leaveEvent (req, res, next) {
     return next(e);
   }
   return res.json({message: 'SUCCESS'});
+}
+
+async function getMessages (req, res, next) {
+  const eventId = req.params.eventID;
+  const userId = req.user._id;
+  const {nextKey} = req.query;
+  console.log('getMessage', eventId, userId, nextKey);
+
+  try {
+    const messages = await eventService.getEventMessages(eventId, userId, nextKey);
+    return res.json({messages});
+  } catch (e) {
+    return next(e);
+  }
+}
+
+async function createMessage (req, res, next) {
+  const eventId = req.params.eventID;
+  const userId = req.user._id;
+  const {text} = req.body;
+
+  try {
+    await eventService.createEventMessage(eventId, userId, text);
+    return res.json({message: 'SUCCESS'});
+  } catch (e) {
+    return next(e);
+  }
 }

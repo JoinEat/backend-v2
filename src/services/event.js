@@ -410,6 +410,7 @@ async function createEventMessage (eventId, userId, text) {
   await checkEventIdValidAndExist(eventId);
   const status = await getMemberStatus(eventId, userId);
   if (status != 'success') throw error.EVENT.NOT_MEMBER;
+  if (!text) throw error.EVENT.TEXT_EMPTY;
 
   const new_message = {
     author: userId,

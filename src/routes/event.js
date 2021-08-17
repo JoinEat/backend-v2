@@ -21,6 +21,9 @@ module.exports = function () {
   router.get('/:eventID/members', attachUser, isAuth, eventController.getMembers);
   router.delete('/:eventID/members', attachUser, isAuth, eventController.leaveEvent);
 
+  router.get('/:eventID/messages', attachUser, isAuth, eventController.getMessages);
+  router.post('/:eventID/messages', attachUser, isAuth, eventController.createMessage);
+
   router.get('/:eventID', attachUser, isAuth, eventController.getEventById);
   router.put('/:eventID', attachUser, isAuth, eventController.updateEvent);
   router.delete('/:eventID', attachUser, isAuth, eventController.deleteEvent);

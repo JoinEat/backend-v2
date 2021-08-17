@@ -54,5 +54,9 @@ module.exports = {
   LONGITUDE_OR_LATITUDE_MISSING: {
     statusCode: 400,
     message: 'LONGITUDE_OR_LATITUDE_MISSING',
-  }
+  },
+  TEXT_EMPTY: {
+    statusCode: 400,
+    message: 'TEXT_EMPTY',
+  },
 };
