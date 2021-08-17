@@ -26,6 +26,8 @@ module.exports = {
   acceptRequest,
   getMembers,
   leaveEvent,
+  getEventMessages,
+  createEventMessage,
 }
 
 /**
@@ -387,5 +389,36 @@ async function leaveEvent (eventId, userId) {
   await Event.findOneAndUpdate(
     {_id: eventId},
     {$pull: {members: {memberId: userId}}},
+  );
+}
+
+async function getEventMessages (eventId, userId, nextKey) {
+  await userService.checkUserIdValidAndExist(userId);
+  await checkEventIdValidAndExist(eventId);
+  const status = await getMemberStatus(eventId, userId);
+  if (status != 'success') throw error.EVENT.NOT_MEMBER;
+
+  const squad = await Event.findById(eventId, {
+    messages: 1,
+  });
+
+  return squad.messages.filter((message) => nextKey ? message._id > nextKey : true);
+}
+
+async function createEventMessage (eventId, userId, text) {
+  await userService.checkUserIdValidAndExist(userId);
+  await checkEventIdValidAndExist(eventId);
+  const status = await getMemberStatus(eventId, userId);
+  if (status != 'success') throw error.EVENT.NOT_MEMBER;
+
+  const new_message = {
+    author: userId,
+    text,
+    createAt: now()
+  };
+
+  await Event.findOneAndUpdate(
+      {_id: eventId},
+      {$push: {messages: new_message}},
   );
 }

@@ -401,4 +401,45 @@ describe('Event service', function () {
       expect(user.currentEvent).to.have.lengthOf(0);
     });
   });
+
+  describe('getEventMessages', function () {
+    it('should return messages after nextKey', async function () {
+      // Arrange
+      const user = (await createUsers(1))[0];
+      const userId = user._id;
+      const squad = await eventService.createEvent(userId, 'title');
+      const eventId = squad._id;
+
+      for (let i=0; i<5; i++) await eventService.createEventMessage(eventId, userId, `test_${i}`);
+      const messages = await eventService.getEventMessages(eventId, userId);
+      expect(messages).to.have.lengthOf(5);
+      const message_id = messages[2]._id;
+      for (let i=5; i<10; i++) await eventService.createEventMessage(eventId, userId, `test_${i}`);
+
+      // Act
+      const messages_subset = await eventService.getEventMessages(eventId, userId, message_id);
+
+      // Assert
+      expect(messages_subset).to.have.lengthOf(7);
+    });
+
+  });
+
+  describe('createEventMessage', function () {
+    it('should create a new message in event entry', async function () {
+      // Arrange
+      const user = (await createUsers(1))[0];
+      const userId = user._id;
+      const squad = await eventService.createEvent(userId, 'title');
+      const eventId = squad._id;
+
+      // Act
+      await eventService.createEventMessage(eventId, userId, 'test');
+
+      // Assert
+      const messages = await eventService.getEventMessages(eventId, userId);
+      expect(messages).to.have.lengthOf(1);
+      expect(messages[0]).to.have.deep.property('text', 'test');
+    });
+  });
 });

@@ -28,6 +28,16 @@ const EventSchema = new mongoose.Schema({
       updateAt: Date,
     },
   ],
+  messages: [
+    {
+      author: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+      text: String,
+      createAt: Date,
+    },
+  ],
   public: {
     type: Boolean,
     default: true,
