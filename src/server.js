@@ -6,7 +6,7 @@ const http = require('http');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {cors: {origin: '*'}, allowEIO3: true});
+const io = new Server(server, {cors: {origin: '*', methods: ['GET', 'POST']}, allowEIO3: true});
 
 async function startServer () {
   await loader({app, io});
