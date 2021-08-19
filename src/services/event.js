@@ -8,6 +8,7 @@ const {PUBLIC_FIELDS} = require('./user');
 
 const IMMUTABLE_FIELDS = ['creator', 'createAt'];
 const MUTABLE_FIELDS = ['title', 'startAt', 'position', 'public'];
+const PUBLIC_FIELDS_SELECT = PUBLIC_FIELDS.join(' ');
 
 module.exports = {
   getEvents,
@@ -400,7 +401,7 @@ async function getEventMessages (eventId, userId, nextKey) {
 
   const squad = await Event.findById(eventId, {
     messages: 1,
-  });
+  }).populate('messages.author', PUBLIC_FIELDS_SELECT);
 
   return squad.messages.filter((message) => nextKey ? message._id > nextKey : true);
 }
