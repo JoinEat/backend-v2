@@ -14,6 +14,8 @@ module.exports = async function ({io}) {
 
     socket.on('message_send', (data) => {socketService.messageSent(io, socket, data.eventId)});
 
+    socket.on('ping', (data) => {socket.emit('pong', {})});
+
     socket.on('connect_error', (err) => {
       console.log(`Connect Error due to ${err.message}`);
     });
