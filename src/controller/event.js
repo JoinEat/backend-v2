@@ -107,7 +107,7 @@ async function deleteEvent (req, res, next) {
   const eventId = req.params.eventID;
 
   try {
-    await eventService.deleteEvent(eventId);
+    await eventService.deleteEvent(eventId, req.user._id);
   } catch (e) {
     return next(e);
   }

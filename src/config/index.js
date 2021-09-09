@@ -33,5 +33,11 @@ module.exports = {
     clientSecret: process.env.EMAIL_CLIENT_SECRET,
     refreshToken: process.env.EMAIL_REFRESH_TOKEN,
   },
+
+  squad: {
+    emptyLife: process.env.SQUAD_EMPTY_LIFE,
+    formTime: process.env.SQUAD_FORM_TIME,
+    formLife: process.env.SQUAD_FORM_LIFE,
+  },
 };
 

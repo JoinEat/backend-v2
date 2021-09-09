@@ -1,10 +1,12 @@
 const error = require('../errors');
 const Event = require('../models/event');
+const SquadEvent = require('../models/squadEvents');
 const userService = require('./user');
 const friendService = require('./friend');
 const User = require('../models/users');
 const { now } = require('mongoose');
 const {PUBLIC_FIELDS} = require('./user');
+const config = require('../config');
 
 const IMMUTABLE_FIELDS = ['creator', 'createAt'];
 const MUTABLE_FIELDS = ['title', 'startAt', 'position', 'public'];
@@ -18,6 +20,7 @@ module.exports = {
   updateEvent,
   updateEventLocation,
   deleteEvent,
+  destroyEvent,
   checkEventIdValidAndExist,
   getInvitations,
   inviteToEvent,
@@ -29,6 +32,17 @@ module.exports = {
   leaveEvent,
   getEventMessages,
   createEventMessage,
+}
+
+async function createSquadEvent (eventName, eventId, schedule) {
+  const date = new Date(parseInt(schedule));
+  console.log(schedule, date);
+  const newEvent = new SquadEvent({
+    event: eventId,
+    type: 'destroy',
+    scheduleAt: date,
+  });
+  await newEvent.save();
 }
 
 /**
@@ -120,8 +134,8 @@ async function createEvent (userId, title, data) {
   await userService.checkUserIdValidAndExist(userId);
   if (!title) throw error.EVENT.TITLE_REQUIRED;
   
-  newEvent = new Event({title, creator: userId});
-  resEvent = await newEvent.save();
+  const newEvent = new Event({title, creator: userId});
+  let resEvent = await newEvent.save();
 
   await addMemberWithStatus(resEvent._id, userId, 'success');
   resEvent = await Event.findById(resEvent._id);
@@ -130,6 +144,7 @@ async function createEvent (userId, title, data) {
     {_id: userId},
     {$push: {currentEvent: resEvent._id}},
   );
+  await createSquadEvent('destroy', resEvent._id, Date.now() + parseInt(config.squad.emptyLife));
 
   if (data) resEvent = await updateEvent(resEvent._id, userId, data)
   return resEvent;
@@ -216,6 +231,29 @@ async function deleteEvent (eventId, userId) {
   await userService.checkUserIdValidAndExist(userId);
   await checkPermission(eventId, userId);
   // TODO: remove all member
+
+  await destroyEvent(eventId);
+  // await Event.findOneAndDelete({_id: eventId}).exec();
+}
+
+async function destroyEvent (eventId) {
+  const squad = await Event.findById(eventId);
+  for (const member of squad.members) {
+    console.log('remove', member);
+    if (member.state == 'inviting') {
+      await User.findOneAndUpdate(
+          {_id: member.memberId},
+          {$pull: {eventInvitations: {eventId}}},
+      );
+    }
+    if (member.state == 'success') {
+      console.log('remove', member.memberId, eventId);
+      await User.findOneAndUpdate(
+          {_id: member.memberId},
+          {$pull: {currentEvent: eventId}},
+      );
+    }
+  }
 
   await Event.findOneAndDelete({_id: eventId}).exec();
 }
