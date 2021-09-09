@@ -30,6 +30,10 @@ module.exports = async function () {
     await EventService.destroyEvent(eventId);
   });
 
+  squadEventsEmitter.on('sendForm', async function (eventId) {
+    await EventService.sendEventForm(eventId);
+  });
+
 
   setInterval(async () => {
     await fetchSquadEvents();

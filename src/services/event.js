@@ -7,6 +7,7 @@ const User = require('../models/users');
 const { now } = require('mongoose');
 const {PUBLIC_FIELDS} = require('./user');
 const config = require('../config');
+const {parse} = require("dotenv");
 
 const IMMUTABLE_FIELDS = ['creator', 'createAt'];
 const MUTABLE_FIELDS = ['title', 'startAt', 'position', 'public'];
@@ -32,6 +33,7 @@ module.exports = {
   leaveEvent,
   getEventMessages,
   createEventMessage,
+  sendEventForm,
 }
 
 async function createSquadEvent (eventName, eventId, schedule) {
@@ -39,7 +41,7 @@ async function createSquadEvent (eventName, eventId, schedule) {
   console.log(schedule, date);
   const newEvent = new SquadEvent({
     event: eventId,
-    type: 'destroy',
+    type: eventName,
     scheduleAt: date,
   });
   await newEvent.save();
@@ -169,13 +171,22 @@ async function updateEvent (eventId, userId, data) {
     delete data.latitude;
   }
 
-  for (key in data) {
+  for (const key in data) {
     if (!MUTABLE_FIELDS.includes(key)) {
       throw error.EVENT.FIELD_NOT_MUTABLE;
     }
   }
 
-  updatedEvent = await Event.findOneAndUpdate(
+  if (data.startAt) {
+    await SquadEvent.deleteMany({event: eventId});
+    const startAt = parseInt(data.startAt);
+    const formStart = parseInt(config.squad.formTime);
+    const squadDestroy = formStart + parseInt(config.squad.formLife);
+    await createSquadEvent('sendForm', eventId, startAt + formStart);
+    await createSquadEvent('destroy', eventId, startAt + squadDestroy);
+  }
+
+  const updatedEvent = await Event.findOneAndUpdate(
       {_id: eventId},
       {$set: data},
       {new: true},
@@ -250,7 +261,8 @@ async function destroyEvent (eventId) {
       console.log('remove', member.memberId, eventId);
       await User.findOneAndUpdate(
           {_id: member.memberId},
-          {$pull: {currentEvent: eventId}},
+          {$pull: {currentEvent: eventId, eventForm: eventId}},
+          {multi: true}
       );
     }
   }
@@ -461,4 +473,17 @@ async function createEventMessage (eventId, userId, text) {
       {_id: eventId},
       {$push: {messages: new_message}},
   );
+}
+
+async function sendEventForm (eventId) {
+  await checkEventIdValidAndExist(eventId);
+  const squad = await Event.findById(eventId);
+  for (const member of squad.members) {
+    if (member.state == 'success') {
+      await User.findOneAndUpdate(
+          {_id: member.memberId},
+          {$push: {eventForm: eventId}},
+      );
+    }
+  }
 }

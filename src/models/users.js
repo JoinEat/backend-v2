@@ -45,6 +45,12 @@ const userSchema = new mongoose.Schema(
           updateAt: Date,
         },
       ],
+      eventForm: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Event',
+        },
+      ],
       currentEvent: [
         {
           type: mongoose.Schema.Types.ObjectId,
