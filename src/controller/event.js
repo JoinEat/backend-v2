@@ -18,6 +18,7 @@ module.exports = {
   leaveEvent,
   getMessages,
   createMessage,
+  submitForm,
 };
 
 async function getEvents (req, res, next) {
@@ -228,6 +229,18 @@ async function createMessage (req, res, next) {
 
   try {
     await eventService.createEventMessage(eventId, userId, text);
+    return res.json({message: 'SUCCESS'});
+  } catch (e) {
+    return next(e);
+  }
+}
+
+async function submitForm (req, res, next) {
+  const eventId = req.params.eventID;
+  const userId = req.user._id;
+
+  try {
+    await eventService.submitForm(eventId, userId, req.body);
     return res.json({message: 'SUCCESS'});
   } catch (e) {
     return next(e);

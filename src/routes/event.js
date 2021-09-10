@@ -30,5 +30,7 @@ module.exports = function () {
 
   router.put('/:eventID/location', attachUser, isAuth, eventController.updateEventLocation);
 
+  router.post('/:eventID/form', attachUser, isAuth, eventController.submitForm);
+
   return router;
 }

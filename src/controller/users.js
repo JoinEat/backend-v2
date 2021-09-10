@@ -11,6 +11,7 @@ module.exports = {
   verifyWithCode,
   getMyCurrentEvents,
   getMyInvitations,
+  getMyEventForms,
 };
 
 function filterObjectKeysWithArray (from, fields) {
@@ -130,6 +131,18 @@ async function getMyInvitations (req, res, next) {
   let events;
   try {
     events = await userService.getEventInvitations(userId);
+  } catch (e) {
+    return next(e);
+  }
+
+  return res.json({events}).status(200);
+}
+
+async function getMyEventForms (req, res, next) {
+  const userId = req.user._id;
+  let events;
+  try {
+    events = await userService.getEventForms(userId);
   } catch (e) {
     return next(e);
   }

@@ -5,7 +5,7 @@ const userService = require('./user');
 const friendService = require('./friend');
 const User = require('../models/users');
 const { now } = require('mongoose');
-const {PUBLIC_FIELDS} = require('./user');
+const {PUBLIC_FIELDS, checkUserIdValidAndExist} = require('./user');
 const config = require('../config');
 const {parse} = require("dotenv");
 
@@ -34,6 +34,7 @@ module.exports = {
   getEventMessages,
   createEventMessage,
   sendEventForm,
+  submitForm,
 }
 
 async function createSquadEvent (eventName, eventId, schedule) {
@@ -486,4 +487,11 @@ async function sendEventForm (eventId) {
       );
     }
   }
+}
+
+async function submitForm (eventId, userId, data) {
+  await checkEventIdValidAndExist(eventId);
+  await checkUserIdValidAndExist(userId);
+
+  console.log("New form: ", data);
 }

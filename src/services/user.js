@@ -18,6 +18,7 @@ module.exports = {
   checkUserIdValidAndExist,
   getCurrentEvents,
   getEventInvitations,
+  getEventForms,
   SEARCH_FIELDS,
   PUBLIC_FIELDS,
   EXCLUDE_FIELDS,
@@ -161,6 +162,13 @@ async function getCurrentEvents (userId) {
   let user = await User.findById(userId)
       .populate('currentEvent')
   return user.currentEvent;
+}
+
+async function getEventForms (userId) {
+  await checkUserIdValidAndExist(userId);
+  let user = await User.findById(userId)
+      .populate('eventForm')
+  return user.eventForm;
 }
 
 async function getEventInvitations (userId) {

@@ -11,6 +11,7 @@ module.exports = function () {
 
   router.get('/myInvitations', attachUser, isAuth, userController.getMyInvitations);
   router.get('/myCurrentEvents', attachUser, isAuth, userController.getMyCurrentEvents);
+  router.get('/myEventForms', attachUser, isAuth, userController.getMyEventForms);
 
   router.get('/:userId', attachUser, isAuth, userController.getUserWithId);
 
