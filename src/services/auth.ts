@@ -1,3 +1,5 @@
+import { Error } from "mongoose";
+import { IUser } from "../models/users";
 const argon2 = require('argon2');
 const User = require('../models/users');
 const VerifyCode = require('../models/verifyCode');
@@ -14,7 +16,7 @@ module.exports = {
   verifyWithCode,
 };
 
-async function signUp (email, password, name) {
+async function signUp (email: string | undefined, password: string | undefined, name: string | undefined) {
   if (!email || !password || !name) {
     throw error.GENERAL.VALIDATION_ERROR;
   }
@@ -27,7 +29,7 @@ async function signUp (email, password, name) {
       name,
       password: hashedPassword,
     });
-  } catch (e) {
+  } catch (e: any ) {
     if (e.code == 11000) { // DUPLICATE KEY
       if (e.keyPattern.email == 1) {
         throw error.AUTH.EMAIL_DUPLICATE;
@@ -42,7 +44,7 @@ async function signUp (email, password, name) {
   return user;
 }
 
-async function login (emailOrName, password) {
+async function login (emailOrName: string, password: string) {
   let user;
   // find user with email first
   user = await User.findOne({email: emailOrName});
@@ -62,7 +64,7 @@ async function login (emailOrName, password) {
   };
 }
 
-function generateToken (user) {
+function generateToken (user: IUser) {
   const data = {
     _id: user._id,
     name: user.name,

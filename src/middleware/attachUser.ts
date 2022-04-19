@@ -1,14 +1,16 @@
 const config = require('../config');
 const jwt = require('jsonwebtoken');
 const error = require('../errors');
+import { Request, Response, NextFunction } from "express";
+import { RequestWithUser } from "../interfaces/express_interface";
 
-function getTokenFromHeader (req) {
+function getTokenFromHeader (req: Request) {
   if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
     return req.headers.authorization.split(' ')[1];
   }
 }
 
-module.exports = async function (req, res, next) {
+export default async function (req: RequestWithUser, res: Response, next: NextFunction) {
   const token = getTokenFromHeader(req);
   if (!token) return next();
   let userData;

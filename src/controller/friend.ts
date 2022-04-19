@@ -1,4 +1,6 @@
 const friendService = require('../services/friend');
+import { Request, Response, NextFunction } from "express";
+import { RequestWithUser } from "../interfaces/express_interface";
 
 module.exports = {
   getFriends,
@@ -7,7 +9,7 @@ module.exports = {
   deleteFriend,
 };
 
-async function getFriends (req, res, next) {
+async function getFriends (req: Request, res: Response, next: NextFunction) {
   let friends;
 
   const stateFilter = req.query.state;
@@ -21,7 +23,7 @@ async function getFriends (req, res, next) {
   return res.json({friends}).status(200);
 }
 
-async function requestFriend (req, res, next) {
+async function requestFriend (req: RequestWithUser, res: Response, next: NextFunction) {
   const userId = req.user._id;
   const targetId = req.body.friendID;
 
@@ -34,7 +36,7 @@ async function requestFriend (req, res, next) {
   return res.json({message: 'SUCCESS'}).status(200);
 }
 
-async function acceptFriend (req, res, next) {
+async function acceptFriend (req: RequestWithUser, res: Response, next: NextFunction) {
   const userId = req.user._id;
   const targetId = req.params.friendID;
 
@@ -47,7 +49,7 @@ async function acceptFriend (req, res, next) {
   return res.json({message: 'SUCCESS'}).status(200);
 }
 
-async function deleteFriend (req, res, next) {
+async function deleteFriend (req: RequestWithUser, res: Response, next: NextFunction) {
   const userId = req.user._id;
   const targetId = req.params.friendID;
 

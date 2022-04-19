@@ -7,8 +7,8 @@ if (envFound.error) {
   if (!process.env.JWT_SECRET) process.env.JWT_SECRET = 'secret';
 }
 
-module.exports = {
-  port: parseInt(process.env.PORT, 10),
+const config = {
+  port: parseInt(process.env.PORT || "8080", 10),
 
   log: {
     level: process.env.LOG_LEVEL,
@@ -41,3 +41,4 @@ module.exports = {
   },
 };
 
+export default config; 

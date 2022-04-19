@@ -2,7 +2,7 @@ const {Router} = require('express');
 const userController = require('../controller/users');
 const {isAuth, attachUser} = require('../middleware');
 
-module.exports = function () {
+export default function () {
   const router = new Router();
 
   router.get('/', attachUser, userController.listUsers);

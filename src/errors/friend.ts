@@ -1,4 +1,4 @@
-module.exports = {
+const errors = {
   FRIEND_SLEF_INVALID: {
     statusCode: 400,
     message: 'FRIEND_SLEF_INVALID',
@@ -25,3 +25,5 @@ module.exports = {
   },
 
 }
+
+export default errors;
